@@ -1,0 +1,10 @@
+[
+    {
+        "name": "sqlite",
+        "url": "https://sqlite.org"
+    },
+    {
+        "name": "react",
+        "url": "https://reactjs.org"
+    }
+]
