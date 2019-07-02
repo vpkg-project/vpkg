@@ -25,7 +25,7 @@ TODO
 - Use `os.rmdir` when it is fully implemented.
 
 ## Development
-1. Compile it first.
+1. Download and install [v-args](https://github.com/nedpals/v-args) (installation in the repo and compile.
 2. Run the registry server using `http-server` or similar tools.
 
 ## Copyright
