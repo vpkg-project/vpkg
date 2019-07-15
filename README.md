@@ -1,5 +1,5 @@
 # vpkg 
-vpkg is a toy package manager written on [V](https://github.com/vlang/v) for V. It demonstrates the basic functions of a package manager and was never originally intended as a design proposal for a future package manager that was stated on [V's website](https://vlang.io/).
+vpkg is ~~a toy~~ another package manager written on [V](https://github.com/vlang/v) for V. It demonstrates the basic functions of a package manager and was never originally intended as a design proposal for a future package manager that was stated on [V's website](https://vlang.io/).
 
 ## The approach
 vpkg's approach is to incorporate the ideas taken from decentralized and centralized package managers.
@@ -21,11 +21,12 @@ But there are some things that make's vpkg unique:
 
 TODO
 - Mechanism for updating packages
-- Make moving the packages to the target destination work.
+- ~~Make moving the packages to the target destination work.~~
+- Lockfile for easy tracking of modules
 - Use `os.rmdir` when it is fully implemented.
 
 ## Development
-1. Download and install [v-args](https://github.com/nedpals/v-args) (installation in the repo and compile.
+1. Download and install [v-args](https://github.com/nedpals/v-args) (installation in the repo and compile).
 2. Run the registry server using `http-server` or similar tools.
 
 ## Copyright
