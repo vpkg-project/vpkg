@@ -41,6 +41,7 @@ fn fetch_from_registry(name string, global bool) DownloadedPackage {
             downloaded_path: ''
         }
     }
+
     mut found_pkg := false
     mut pkg_index := 0
     mut pkg := Package{}
@@ -55,7 +56,7 @@ fn fetch_from_registry(name string, global bool) DownloadedPackage {
         }
     }
 
-    dl_pkg := fetch_from_git(pkg.name)
+    dl_pkg := fetch_from_git(pkg.name, global)
 
     return DownloadedPackage{
         name: dl_pkg.name,
@@ -63,109 +64,68 @@ fn fetch_from_registry(name string, global bool) DownloadedPackage {
     }
 }
 
-fn fetch_from_git(path string) DownloadedPackage {
-    mut pkg_name := package_name(path)
+fn fetch_from_git(path string, global bool) DownloadedPackage {
+    pkg_name := package_name(path)
+    dir_name := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
+    install_location := if global { VLibDir } else { ModulesDir }
+    clone_dir := '${install_location}/${dir_name}'
 
-    os.exec('git clone ${path} ${TMP_DIR}/${pkg_name}')
+    os.exec('git clone ${path} ${clone_dir}')
 
     return DownloadedPackage{
         name: pkg_name,
-        downloaded_path: '${TMP_DIR}/${pkg_name}'
+        downloaded_path: clone_dir
     }
 }
 
-fn is_git_url(a string) bool {
-    return a.starts_with('https://') || a.starts_with('git://')
-}
+fn get_package(name string, global bool) DownloadedPackage {
+    pkg_name := package_name(name)
 
-fn copy_packages_to_vlib(downloaded_packages []DownloadedPackage) int {
-    for package in downloaded_packages {
-        println('Copying ${package.name}')
-        os.mv('${package.downloaded_path}', '${VLIB_PATH}/${package.name}')
-        println('to ${VLIB_PATH}/${package.name}')
-    }
+    println('Fetching ${pkg_name}')
+    exists_on_vlib := os.dir_exists('${VLibDir}/${pkg_name}')
+    exists_on_cwd := os.dir_exists('${ModulesDir}/${pkg_name}')
+    module_install_path := if exists_on_cwd { ModulesDir } else { VLibDir }
 
-    // TODO: When os.rmdir is implemented
-    // os.rmdir(TMP_DIR)
-    return 1
-}
+    mut data := DownloadedPackage{}
 
-fn get_package(name string) DownloadedPackage {
-    println('Fetching ${package_name(name)}')
+    if exists_on_vlib || exists_on_cwd {
+        println('${pkg_name} is already installed.')
 
-    if (os.dir_exists('${VLIB_PATH/${package_name(name)}')) {
-        println('${package_name(name)} is already installed.')
-
-        return DownloadedPackage {
-            name: package_name(name),
-            downloaded_path: '${VLIB_PATH/${package_name(name)}'
+        data = DownloadedPackage{
+            name: pkg_name,
+            downloaded_path: '${module_install_path}/${pkg_name}'
         }
     }
 
-    if !os.dir_exists(TMP_DIR) {
-        os.mkdir(TMP_DIR)    
-    }
-
     if is_git_url(name) {
-        return fetch_from_git(name)
+        data = fetch_from_git(name, global)
     } else {
-        return fetch_from_registry(name)
-    }
+        println('coming from registry')
+        data = fetch_from_registry(name, global)
 }
 
-fn install_packages() {
-    mut packages := []DownloadedPackage
-
-    vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
-        eprintln(term.red('No .vpkg.json found.'))
-        return
-    }
-
-    pkg_info := json.decode(PkgInfo, vpkg_file) or {
-        eprintln(term.red('Error decoding .vpkg.json'))
-        return
-    }
-
-    println('Installing packages')
-    for package in pkg_info.packages {
-        pkg := get_package(package)
-        packages << pkg
-    }
-
-    copy_packages_to_vlib(packages)
-
-    return
+    return data
 }
 
-fn show_version() {
-    println('vpkg ${VERSION}')
-    println(os.user_os())
-}
-
-fn show_help() {
-    println('VPkg ${VERSION}')
-    println('Just a toy package manager for V.')
-
-    println('COMMANDS')
-
-    println('get [package name / git url] - Fetch packages from the registry or the git repo.')
-    println('install - reads the ".vpkg.json" file and installs the necessary packages.')
-    println('help - Prints this help message.')
-    println('version - Prints the version of this program.')
-}
 
 fn main() {
-    _argv := args.parse(os.args)
+    _argv := args.parse(os.args, 1)
+    is_global := if _argv.options.exists('g') || _argv.options.exists('global') {
+        true
+    } else {
+        false
+    }
 
     switch _argv.command {
         case 'install':
-            install_packages()
+            install_packages(is_global)
         case 'get':
-            package := get_package(_argv.unknown[0])
-            copy_packages_to_vlib([package])
+            get_packages(_argv.unknown, is_global)
         case 'help':
             show_help()
         case 'version':
             show_version()
+        default:
+            show_help()
     }
 }
