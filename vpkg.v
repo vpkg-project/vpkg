@@ -1,6 +1,7 @@
 /*
 * V Package Manager / vpkg
 */
+module main
 
 import http
 import os
@@ -9,9 +10,10 @@ import args
 import term
 
 const (
-    VERSION = '0.1'
-    VLIB_PATH = '/root/code/v/vlib'
-    TMP_DIR = '${os.getwd()}/.vpkg_tmp'
+    Version = '0.1'
+    VLibDir = '/root/code/v/vlib'
+    ModulesDir = '${os.getwd()}'
+    TmpDir = '${os.getwd()}/.tmp_vpkg'
 )
 
 struct Package {
@@ -102,7 +104,7 @@ fn get_package(name string, global bool) DownloadedPackage {
     } else {
         println('coming from registry')
         data = fetch_from_registry(name, global)
-}
+    }
 
     return data
 }
