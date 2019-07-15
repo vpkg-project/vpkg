@@ -1,10 +1,10 @@
 [
     {
-        "name": "sqlite",
-        "url": "https://sqlite.org"
+        "name": "v-args",
+        "url": "https://github.com/nedpals/v-args"
     },
     {
-        "name": "react",
-        "url": "https://reactjs.org"
+        "name": "v-regex",
+        "url": "https://github.com/ShellBear/v-regex"
     }
 ]
