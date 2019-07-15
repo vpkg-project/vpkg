@@ -31,23 +31,9 @@ struct PkgInfo {
     packages []string
 }
 
-fn package_name(name string) string {
-    mut is_git := is_git_url(name)
-    mut pkg_name := name
-
-    if is_git {
-        pkg_name = os.filename(name)
-    }
-
-    if is_git && name.contains('.git') {
-        pkg_name = pkg_name.replace('.git', '')
-    }
-
-    return pkg_name
-}
-
-fn fetch_from_registry(name string) DownloadedPackage {
+fn fetch_from_registry(name string, global bool) DownloadedPackage {
     resp := http.get('http://localhost:8080/registry.json')
+
     repo := json.decode([]Package, resp) or {
         eprintln('Failed to read repo.json')
         return DownloadedPackage {
