@@ -26,13 +26,16 @@ fn install_packages(global bool) {
     return
 }
 
-fn remove_packages(packages []string) {
-    // TODO: Remove packages
-}
+// TODO
+// fn remove_packages(packages []string) {
+//     for package in packages {
+//         //
+//     }
+// }
 
-fn update_packages() {
-    // TODO: Update packages
-}
+// fn update_packages() {
+//     // TODO: Update packages
+// }
 
 fn get_packages(packages []string, global bool) []DownloadedPackage {
     mut installed_packages := []DownloadedPackage
