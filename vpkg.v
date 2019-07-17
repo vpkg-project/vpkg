@@ -16,23 +16,6 @@ const (
     TmpDir = '${os.getwd()}/.tmp_vpkg'
 )
 
-struct Package {
-    name string
-    url string
-}
-
-struct DownloadedPackage {
-    name string
-    downloaded_path string
-}
-
-struct PkgInfo {
-    name string
-    version string
-    repo string
-    packages []string
-}
-
 fn fetch_from_registry(name string, global bool) DownloadedPackage {
     resp := http.get('http://localhost:8080/registry.json')
 
@@ -112,6 +95,7 @@ fn get_package(name string, global bool) DownloadedPackage {
 
 fn main() {
     _argv := args.parse(os.args, 1)
+    
     is_global := if _argv.options.exists('g') || _argv.options.exists('global') {
         true
     } else {
