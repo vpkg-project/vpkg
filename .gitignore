@@ -1,2 +1,4 @@
 vpkg
 args/
+*.exe
+*.c
