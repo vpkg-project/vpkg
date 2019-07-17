@@ -3,18 +3,23 @@ module main
 import os
 import json
 
-// fn create_and_update_lockfile() {
+// fn read_lockfile() string {
+    
+// }
+
+// fn create_lockfile() string {
 //     // TODO: Create lockfile for easy tracking of modules
 
 //     lockfile_path := '${os.getcwd()}/.vpkg.lock'
-//     mut lockfile := os.read_file(lockfile_path) or {
-//         return
+    
+//     os.create(lockfile_path) or {
+        
 //     }
 
 
-//     // if !os.file_exists(lockfile_path) {
+//     if !os.file_exists(lockfile_path) {
 
-//     // }
+//     }
 // }
 
 fn delete_package_contents(path string) {
