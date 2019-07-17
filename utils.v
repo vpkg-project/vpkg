@@ -17,6 +17,26 @@ import json
 //     // }
 // }
 
+fn delete_package_contents(path string) {
+    folder_contents := os.ls(path)
+
+    for i := 0; i < folder_contents.len; i++ {
+        filename := folder_contents[i]
+        filepath := '${path}/${filename}'
+        is_dir := os.is_dir(filepath)
+
+        if is_dir {
+            delete_package_contents(filepath)
+        } else {
+            os.rm(filepath)
+        }
+    }
+
+    if folder_contents.len == 0 {
+        os.rmdir(path)
+    }
+}
+
 fn package_name(name string) string {
     mut is_git := is_git_url(name)
     mut pkg_name := name
