@@ -1,6 +1,3 @@
-/*
-* V Package Manager / vpkg
-*/
 module main
 
 import http
@@ -12,7 +9,7 @@ import term
 const (
     Version = '0.1'
     VLibDir = '/root/code/v/vlib'
-    ModulesDir = '${os.getwd()}'
+    ModulesDir = '${os.getwd()}/modules'
     TmpDir = '${os.getwd()}/.tmp_vpkg'
 )
 
