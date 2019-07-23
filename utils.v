@@ -7,10 +7,10 @@ import json
     
 // }
 
-// fn create_lockfile() string {
+// fn create_lockfile() ?string {
 //     // TODO: Create lockfile for easy tracking of modules
 
-//     lockfile_path := '${os.getcwd()}/.vpkg.lock'
+//     lockfile_path := '${os.getwd()}/.vpkg.lock'
     
 //     os.create(lockfile_path) or {
         
@@ -22,23 +22,29 @@ import json
 //     }
 // }
 
-fn delete_package_contents(path string) {
-    folder_contents := os.ls(path)
+
+fn delete_package_contents(path string) bool {
+    mut folder_contents := os.ls(path)
 
     for i := 0; i < folder_contents.len; i++ {
         filename := folder_contents[i]
         filepath := '${path}/${filename}'
-        is_dir := os.is_dir(filepath)
 
-        if is_dir {
+        if os.dir_exists(filepath) {
             delete_package_contents(filepath)
         } else {
             os.rm(filepath)
         }
     }
 
+    folder_contents = os.ls(path)
+
     if folder_contents.len == 0 {
         os.rmdir(path)
+
+        return true
+    } else {
+        return false
     }
 }
 
@@ -55,6 +61,14 @@ fn package_name(name string) string {
     }
 
     return pkg_name
+}
+
+fn create_modules_dir() string {
+    if os.dir_exists(ModulesDir) {
+        os.mkdir(ModulesDir)
+    }
+
+    return ModulesDir
 }
 
 fn is_git_url(a string) bool {
