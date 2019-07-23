@@ -102,16 +102,12 @@ fn main() {
         false
     }
 
-    switch _argv.command {
-        case 'install':
-            install_packages(is_global)
-        case 'get':
-            get_packages(_argv.unknown, is_global)
-        case 'help':
-            show_help()
-        case 'version':
-            show_version()
-        default:
-            show_help()
+    match _argv.command {
+        'install' => install_packages(is_global)
+        'get' => get_packages(_argv.unknown, is_global)
+        'remove' => remove_packages(_argv.unknown)
+        'help' => show_help()
+        'version' => show_version()
+        else => show_help()
     }
 }
