@@ -42,23 +42,23 @@ fn remove_packages(packages []string) {
 }
 
 // TODO: Update packages
-fn update_packages() {
-    // readlockfile
-    installed_packages := os.ls(ModulesDir)
-    println('Updating packages')
+// fn update_packages() {
+//     // readlockfile
+//     installed_packages := os.ls(ModulesDir)
+//     println('Updating packages')
 
-    for package in installed_packages {
-        current_hash := os.exec('git log --pretty=format:\'%h\' -n 1')
-        mut latest_hash := current_hash
+//     for package in installed_packages {
+//         current_hash := os.exec('git log --pretty=format:\'%h\' -n 1')
+//         mut latest_hash := current_hash
 
-        os.exec('git fetch')
-        latest_hash = os.exec('git log --pretty=format:\'%h\' -n 1')
+//         os.exec('git fetch')
+//         latest_hash = os.exec('git log --pretty=format:\'%h\' -n 1')
 
-        if current_hash != latest_hash {
-            os.exec('git pull')
-        }
-    }
-}
+//         if current_hash != latest_hash {
+//             os.exec('git pull')
+//         }
+//     }
+// }
 
 fn get_packages(packages []string, global bool) {
     mut installed_packages := []DownloadedPackage
