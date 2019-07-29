@@ -52,7 +52,7 @@ fn fetch_from_git(path string, global bool) DownloadedPackage {
     install_location := if global { VLibDir } else { ModulesDir }
     clone_dir := '${install_location}/${dir_name}'
 
-    os.exec('git clone ${path} ${clone_dir}')
+    os.exec('git clone ${path} ${clone_dir} --branch master --depth 1')
 
     return DownloadedPackage{
         name: pkg_name,
