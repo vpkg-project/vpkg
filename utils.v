@@ -3,6 +3,20 @@ module main
 import os
 import json
 
+fn load_package_file() PkgInfo {
+    vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
+        eprintln(term.red('No .vpkg.json found.'))
+        return PkgInfo{'', '', '', []string}
+    }
+
+    pkg_info := json.decode(PkgInfo, vpkg_file) or {
+        eprintln(term.red('Error decoding .vpkg.json'))
+        return PkgInfo{'', '', '', []string}
+    }
+
+    return pkg_info
+}
+
 fn check_git_version(dir string) string {
     version := os.exec('git --git-dir ${dir}/.git log --pretty=format:%H -n 1')
 

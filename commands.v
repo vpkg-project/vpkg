@@ -5,15 +5,7 @@ import term
 import args
 
 fn install_packages(global bool) {
-    vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
-        eprintln(term.red('No .vpkg.json found.'))
-        return
-    }
-
-    pkg_info := json.decode(PkgInfo, vpkg_file) or {
-        eprintln(term.red('Error decoding .vpkg.json'))
-        return
-    }
+    pkg_info := load_package_file()
 
     println('Installing packages')
     packages := pkg_info.packages
