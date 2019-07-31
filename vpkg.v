@@ -1,9 +1,9 @@
 module main
 
-import http
-import os
-import json
 import args
+import os
+import http
+import json
 import term
 
 const (
