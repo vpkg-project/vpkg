@@ -23,8 +23,8 @@ fn fetch_from_registry(name string, global bool) InstalledPackage {
     repo := json.decode([]Package, resp) or {
         eprintln('Failed to read repo.json')
         return InstalledPackage{}
-        }
-
+    }
+    
     mut found_pkg := false
     mut pkg_index := 0
     mut pkg := Package{}
@@ -42,7 +42,7 @@ fn fetch_from_registry(name string, global bool) InstalledPackage {
     dl_pkg := fetch_from_git(pkg.name, global)
 
     return dl_pkg
-    }
+}
 
 fn fetch_from_git(path string, global bool) InstalledPackage {
     pkg_name := package_name(path)
@@ -59,7 +59,7 @@ fn fetch_from_git(path string, global bool) InstalledPackage {
     }
 }
 
-fn get_package(name string, global bool) DownloadedPackage {
+fn get_package(name string, global bool) InstalledPackage {
     pkg_name := package_name(name)
 
     println('Fetching ${pkg_name}')
@@ -67,22 +67,22 @@ fn get_package(name string, global bool) DownloadedPackage {
     exists_on_cwd := os.dir_exists('${ModulesDir}/${pkg_name}')
     module_install_path := if exists_on_cwd { ModulesDir } else { VLibDir }
 
-    mut data := DownloadedPackage{}
+    mut data := InstalledPackage{}
 
     if exists_on_vlib || exists_on_cwd {
         println('${pkg_name} is already installed.')
-
-        data = DownloadedPackage{
+        installed_path := '${module_install_path}/${pkg_name}'
+        data = InstalledPackage{
             name: pkg_name,
-            downloaded_path: '${module_install_path}/${pkg_name}'
+            path: installed_path,
+            version: check_git_version(installed_path)
         }
     }
 
-    if is_git_url(name) {
-        data = fetch_from_git(name, global)
+    data = if is_git_url(name) {
+        fetch_from_git(name, global)
     } else {
-        println('coming from registry')
-        data = fetch_from_registry(name, global)
+        fetch_from_registry(name, global)
     }
 
     return data
