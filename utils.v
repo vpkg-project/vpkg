@@ -3,6 +3,11 @@ module main
 import os
 import json
 
+fn check_git_version(dir string) string {
+    version := os.exec('git --git-dir ${dir}/.git log --pretty=format:%H -n 1')
+
+    return version
+}
 
 fn read_lockfile() ?Lockfile {
     empty_lockfile := Lockfile{Version, map[string]InstalledPackage{}}
