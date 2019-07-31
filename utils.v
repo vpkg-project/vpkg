@@ -3,24 +3,65 @@ module main
 import os
 import json
 
-// fn read_lockfile() string {
-    
-// }
 
-// fn create_lockfile() ?string {
-//     // TODO: Create lockfile for easy tracking of modules
+fn read_lockfile() ?Lockfile {
+    empty_lockfile := Lockfile{Version, map[string]InstalledPackage{}}
 
-//     lockfile_path := '${os.getwd()}/.vpkg.lock'
+    contents := os.read_file(LockfilePath) or {
+        eprintln('Lockfile not found.')
+
+        return empty_lockfile
+    }
+
+    decoded := json.decode(Lockfile, contents) or {
+        eprintln('Error decoding lockfile.')
+
+        return empty_lockfile
+    }
+
+    return decoded
+}
+
+fn (lock mut Lockfile) regenerate(packages []InstalledPackage) {
+    if lock.version != Version {
+        lock.version = Version
+    }
+
+    for package in packages {
+        lock.packages[package.name] = InstalledPackage{
+            path: package.path,
+            version: package.version
+        }
+    }
+
+    contents := json.encode(lock)
     
-//     os.create(lockfile_path) or {
+    os.write_file(LockfilePath, contents)
+}
+
+fn create_lockfile() Lockfile {
+    empty_lockfile := Lockfile{Version, map[string]InstalledPackage{}}
+
+    lockfile := os.create(LockfilePath) or {
+        return empty_lockfile
+    }
+    
+    lockfile_contents := Lockfile{
+        version: Version,
+        packages: map[string]InstalledPackage{}
+    }
         
-//     }
+    lockfile_json := json.encode(lockfile_contents)
 
+    lockfile.write(lockfile_json)
+    lockfile.close()
 
-//     if !os.file_exists(lockfile_path) {
+    contents := read_lockfile() or {
+        return empty_lockfile
+    }
 
-//     }
-// }
+    return contents
+}
 
 
 fn delete_package_contents(path string) bool {

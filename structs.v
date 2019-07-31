@@ -18,3 +18,9 @@ struct PkgInfo {
     repo string
     packages []string
 }
+
+struct Lockfile {
+mut:
+    version string
+    packages map[string]InstalledPackage
+}

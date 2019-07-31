@@ -11,6 +11,7 @@ const (
     VLibDir = '/root/code/v/vlib'
     ModulesDir = '${os.getwd()}/modules'
     TmpDir = '${os.getwd()}/.tmp_vpkg'
+    LockfilePath = '${os.getwd()}/.vpkg-lock.json'
 )
 
 fn fetch_from_registry(name string, global bool) DownloadedPackage {

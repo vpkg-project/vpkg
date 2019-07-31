@@ -81,7 +81,12 @@ fn update_packages() {
 
 fn get_packages(packages []string, global bool) {
     mut installed_packages := []InstalledPackage
-    mut installed_packages := []DownloadedPackage
+    mut lockfile := read_lockfile() or {
+        create_lockfile()
+
+        eprintln('Lockfile not found.')
+        return
+    }
 
     for i := 0; i < packages.len; i++ {
         package := get_package(packages[i], global)
