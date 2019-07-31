@@ -15,6 +15,10 @@ fn install_packages(global bool) {
 
 fn remove_packages(packages []string) {
     mut removed_packages := []string
+    mut lockfile := read_lockfile() or {
+        eprintln('Lockfile not found.')
+        return
+    }
 
     for package in packages {
         pkg_name := if package.starts_with('v-') { package.all_after('v-') } else { package }
@@ -24,6 +28,12 @@ fn remove_packages(packages []string) {
             removed_packages << package
         }
     }
+
+    for package in removed_packages {
+        lockfile.packages.delete(package)
+    }
+
+    lockfile.regenerate([]InstalledPackage)
 
     println('${removed_packages.len} packages were removed.')
 }
