@@ -14,6 +14,7 @@ mut:
 
 struct PkgInfo {
     name string
+    author []string
     version string
     repo string
     packages []string
