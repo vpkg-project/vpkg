@@ -95,6 +95,12 @@ fn get_packages(packages []string, global bool) {
     println('${installed_packages.len} packages were installed successfully.')
 }
 
+fn show_package_information() {
+    pkg_info := load_package_file()
+
+    println('Package name: ${pkg_info.name}')
+}
+
 fn show_version() {
     println('vpkg ${Version}')
     println(os.user_os())
