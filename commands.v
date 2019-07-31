@@ -80,12 +80,19 @@ fn update_packages() {
 }
 
 fn get_packages(packages []string, global bool) {
+    mut installed_packages := []InstalledPackage
     mut installed_packages := []DownloadedPackage
 
     for i := 0; i < packages.len; i++ {
         package := get_package(packages[i], global)
 
         installed_packages << package
+    }
+
+    lockfile.regenerate(installed_packages)
+
+    for package in installed_packages {
+        println('${package.name}@${package.version}')
     }
 
     println('${installed_packages.len} packages were installed successfully.')
