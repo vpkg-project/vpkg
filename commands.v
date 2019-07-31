@@ -113,9 +113,11 @@ fn show_help() {
     println('\nCOMMANDS\n')
 
     println('get [packages]                     Fetch and installs packages from the registry or the git repo.')
+    println('help                               Prints this help message.')
+    println('info                               Show project\'s package information.')
     println('install                            Reads the ".vpkg.json" file and installs the necessary packages.')
     println('remove [packages]                  Removes packages')
-    println('help                               Prints this help message.')
+    println('update                             Updates packages.')
     println('version                            Prints the Version of this program.')
 
     println('\nOPTIONS\n')
