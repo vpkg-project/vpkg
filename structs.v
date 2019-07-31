@@ -5,9 +5,11 @@ struct Package {
     url string
 }
 
-struct DownloadedPackage {
-    name string
-    downloaded_path string
+struct InstalledPackage {
+mut:
+    name string    [skip]
+    path string
+    version string
 }
 
 struct PkgInfo {
