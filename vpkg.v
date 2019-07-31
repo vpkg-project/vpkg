@@ -14,16 +14,16 @@ const (
     LockfilePath = '${os.getwd()}/.vpkg-lock.json'
 )
 
-fn fetch_from_registry(name string, global bool) DownloadedPackage {
-    resp := http.get('http://localhost:8080/registry.json')
+fn fetch_from_registry(name string, global bool) InstalledPackage {
+    resp := http.get('http://localhost:8080/registry.json') or {
+        eprintln('Cannot fetch from registry server')
+        return InstalledPackage{}
+    }
 
     repo := json.decode([]Package, resp) or {
         eprintln('Failed to read repo.json')
-        return DownloadedPackage {
-            name: name,
-            downloaded_path: ''
+        return InstalledPackage{}
         }
-    }
 
     mut found_pkg := false
     mut pkg_index := 0
@@ -41,11 +41,8 @@ fn fetch_from_registry(name string, global bool) DownloadedPackage {
 
     dl_pkg := fetch_from_git(pkg.name, global)
 
-    return DownloadedPackage{
-        name: dl_pkg.name,
-        downloaded_path: dl_pkg.downloaded_path
+    return dl_pkg
     }
-}
 
 fn fetch_from_git(path string, global bool) DownloadedPackage {
     pkg_name := package_name(path)
