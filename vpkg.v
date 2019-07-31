@@ -103,6 +103,8 @@ fn main() {
         'get' => get_packages(_argv.unknown, is_global)
         'remove' => remove_packages(_argv.unknown)
         'help' => show_help()
+        'update' => update_packages()
+        'info' => show_package_information()
         'version' => show_version()
         else => show_help()
     }
