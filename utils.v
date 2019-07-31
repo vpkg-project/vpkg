@@ -40,7 +40,7 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage) {
     }
 
     contents := json.encode(lock)
-    
+
     os.write_file(LockfilePath, contents)
 }
 
@@ -50,12 +50,12 @@ fn create_lockfile() Lockfile {
     lockfile := os.create(LockfilePath) or {
         return empty_lockfile
     }
-    
+
     lockfile_contents := Lockfile{
         version: Version,
         packages: map[string]InstalledPackage{}
     }
-        
+
     lockfile_json := json.encode(lockfile_contents)
 
     lockfile.write(lockfile_json)
@@ -95,7 +95,7 @@ fn delete_package_contents(path string) bool {
 }
 
 fn package_name(name string) string {
-    mut is_git := is_git_url(name)
+    is_git := is_git_url(name)
     mut pkg_name := name
 
     if is_git {
