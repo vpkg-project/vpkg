@@ -5,8 +5,6 @@ import term
 import args
 
 fn install_packages(global bool) {
-    mut packages := []DownloadedPackage
-
     vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
         eprintln(term.red('No .vpkg.json found.'))
         return
@@ -18,12 +16,9 @@ fn install_packages(global bool) {
     }
 
     println('Installing packages')
-    for package in pkg_info.packages {
-        pkg := get_package(package, global)
-        packages << pkg
-    }
+    packages := pkg_info.packages
 
-    return
+    get_packages(packages, global)
 }
 
 fn remove_packages(packages []string) {
