@@ -37,23 +37,47 @@ fn remove_packages(packages []string) {
 }
 
 // TODO: Update packages
-// fn update_packages() {
-//     // readlockfile
-//     installed_packages := os.ls(ModulesDir)
-//     println('Updating packages')
+fn update_packages() {    
+    mut updated_packages := []InstalledPackage
 
-//     for package in installed_packages {
-//         current_hash := os.exec('git log --pretty=format:\'%h\' -n 1')
-//         mut latest_hash := current_hash
+    println('Fetching lockfile')
+    mut lockfile := read_lockfile() or {
+        create_lockfile()
 
-//         os.exec('git fetch')
-//         latest_hash = os.exec('git log --pretty=format:\'%h\' -n 1')
+        eprintln('Lockfile not found.')
+        return
+    }
 
-//         if current_hash != latest_hash {
-//             os.exec('git pull')
-//         }
-//     }
-// }
+    println('Updating packages')
+
+    for name, pkg in lockfile.packages {
+        current_hash := pkg.version
+        mut latest_hash := current_hash
+
+        os.exec('git --git-dir ${pkg.path}/.git fetch')
+        latest_hash = check_git_version(pkg.path)
+
+        if current_hash != latest_hash {
+            os.exec('git --git-dir ${pkg.path}/.git pull')
+
+            updated_package := InstalledPackage{
+                name: name,
+                path: pkg.path,
+                version: latest_hash
+            }
+
+            updated_packages << updated_package
+        }
+    }
+
+    lockfile.regenerate(updated_packages)
+
+    for package in updated_packages {
+        println('${package.name}@${package.version}')
+    }
+
+    println('${updated_packages.len} packages were updated successfully')
+}
 
 fn get_packages(packages []string, global bool) {
     mut installed_packages := []DownloadedPackage
