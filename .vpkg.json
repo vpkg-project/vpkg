@@ -1,7 +1,7 @@
 {
     "name": "vpkg",
     "version": "0.1.0",
-    "author": "Name <example@email.com>",
+    "author": ["Name <example@email.com>"],
     "repo": "https://github.com/nedpals/vpkg",
     "packages": [
         "https://github.com/nedpals/v-args.git"
