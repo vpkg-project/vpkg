@@ -44,7 +44,7 @@ fn fetch_from_registry(name string, global bool) InstalledPackage {
     return dl_pkg
     }
 
-fn fetch_from_git(path string, global bool) DownloadedPackage {
+fn fetch_from_git(path string, global bool) InstalledPackage {
     pkg_name := package_name(path)
     dir_name := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     install_location := if global { VLibDir } else { ModulesDir }
@@ -52,9 +52,10 @@ fn fetch_from_git(path string, global bool) DownloadedPackage {
 
     os.exec('git clone ${path} ${clone_dir}')
 
-    return DownloadedPackage{
+    return InstalledPackage{
         name: pkg_name,
-        downloaded_path: clone_dir
+        path: clone_dir,
+        version: check_git_version(clone_dir)
     }
 }
 
