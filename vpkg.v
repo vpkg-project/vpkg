@@ -8,7 +8,7 @@ import term
 
 const (
     Version = '0.2'
-    VLibDir = '/root/code/v/vlib'
+    GlobalModulesDir = '${os.home_dir()}/.vmodules'
     ModulesDir = '${os.getwd()}'
     TmpDir = '${os.getwd()}/.tmp_vpkg'
     LockfilePath = '${os.getwd()}/.vpkg-lock.json'
@@ -82,7 +82,7 @@ fn fetch_from_registry(name string, global bool) InstalledPackage {
 fn fetch_from_git(path string, global bool) InstalledPackage {
     pkg_name := package_name(path)
     dir_name := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
-    install_location := if global { VLibDir } else { ModulesDir }
+    install_location := if global { GlobalModulesDir } else { ModulesDir }
     clone_dir := '${install_location}/${dir_name}'
 
     os.exec('git clone ${path} ${clone_dir} --branch master  --depth 1')
@@ -98,9 +98,9 @@ fn get_package(name string, global bool) InstalledPackage {
     pkg_name := package_name(name)
 
     println('Fetching ${pkg_name}')
-    exists_on_vlib := os.dir_exists('${VLibDir}/${pkg_name}')
+    exists_on_vlib := os.dir_exists('${GlobalModulesDir}/${pkg_name}')
     exists_on_cwd := os.dir_exists('${ModulesDir}/${pkg_name}')
-    module_install_path := if exists_on_cwd && !global { ModulesDir } else { VLibDir }
+    module_install_path := if exists_on_cwd && !global { ModulesDir } else { GlobalModulesDir }
 
     mut data := InstalledPackage{}
 
