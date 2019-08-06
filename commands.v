@@ -4,6 +4,27 @@ import os
 import term
 import args
 
+fn init_pkginfo_json() {
+    mut vpkg_json_contents := ['{', '\n']
+
+    vpkg_json_contents << '   "name": "${Version}",\n'
+    vpkg_json_contents << '   "version": "1.0"\n'
+    vpkg_json_contents << '   "author": ["Author Name <author@example.com>"],\n'
+    vpkg_json_contents << '   "repo": "https://github.com/username/repo",\n'
+    vpkg_json_contents << '   "packages": []\n'
+    vpkg_json_contents << '}'
+
+    vpkg_json := os.create('${ModulesDir}/.vpkg.json') or {
+        eprintln('.vpkg.json file was not created successfully.')
+        return
+    }
+    
+    vpkg_json.write(vpkg_json_contents.join(''))
+    defer { vpkg_json.close() }
+
+    println('.vpkg.json file was create successfully.')
+}
+
 fn install_packages(global bool) {
     pkg_info := load_package_file()
 
@@ -142,6 +163,7 @@ fn show_help() {
     println('get [packages]                     Fetch and installs packages from the registry or the git repo.')
     println('help                               Prints this help message.')
     println('info                               Show project\'s package information.')
+    println('init                               Create a ".vpkg.json" manifest file into the current directory.')
     println('install                            Reads the ".vpkg.json" file and installs the necessary packages.')
     println('remove [packages]                  Removes packages')
     println('update                             Updates packages.')
