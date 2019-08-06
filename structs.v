@@ -22,7 +22,7 @@ struct PkgInfo {
     author []string
     version string
     repo string
-    packages []string
+    dependencies []string
 }
 
 struct VpmPackage {

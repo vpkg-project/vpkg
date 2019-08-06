@@ -11,7 +11,7 @@ fn init_pkginfo_json() {
     vpkg_json_contents << '   "version": "1.0"\n'
     vpkg_json_contents << '   "author": ["Author Name <author@example.com>"],\n'
     vpkg_json_contents << '   "repo": "https://github.com/username/repo",\n'
-    vpkg_json_contents << '   "packages": []\n'
+    vpkg_json_contents << '   "dependencies": []\n'
     vpkg_json_contents << '}'
 
     vpkg_json := os.create('${ModulesDir}/.vpkg.json') or {
@@ -29,7 +29,7 @@ fn install_packages(global bool) {
     pkg_info := load_package_file()
 
     println('Installing packages')
-    packages := pkg_info.packages
+    packages := pkg_info.dependencies
 
     get_packages(packages, global)
 }
@@ -130,12 +130,10 @@ fn show_package_information() {
         return
     }
 
-    dependencies := pkg_info.packages
-
     println('Package name: ${pkg_info.name}@${pkg_info.version}')
     println('\nDependencies:')
-    for i := 0; i < dependencies.len; i++ {
-        println('- ' + dependencies[i])
+    for i := 0; i < pkg_info.dependencies.len; i++ {
+        println('- ' + pkg_info.dependencies[i])
     }
 
     println('\nInstalled packages:')
