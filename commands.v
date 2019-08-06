@@ -16,7 +16,7 @@ fn install_packages(global bool) {
 fn remove_packages(packages []string) {
     mut removed_packages := []string
     mut lockfile := read_lockfile() or {
-        eprintln('Lockfile not found.')
+        println(err)
         return
     }
 
@@ -30,10 +30,20 @@ fn remove_packages(packages []string) {
     }
 
     for package in removed_packages {
-        lockfile.packages.delete(package)
+        mut pkg_index := 0
+
+        for idx, lock_package in lockfile.packages {
+            if lock_package.name == package {
+                pkg_index = idx
+            }
+        }
+
+        lockfile.packages.delete(pkg_index)
     }
 
-    lockfile.regenerate([]InstalledPackage)
+    empty_packages := []InstalledPackage
+
+    lockfile.regenerate(empty_packages)
 
     println('${removed_packages.len} packages were removed.')
 }
@@ -44,15 +54,14 @@ fn update_packages() {
 
     println('Fetching lockfile')
     mut lockfile := read_lockfile() or {
+        println(err)
         create_lockfile()
-
-        eprintln('Lockfile not found.')
         return
     }
 
     println('Updating packages')
 
-    for name, pkg in lockfile.packages {
+    for pkg in lockfile.packages {
         current_hash := pkg.version
         mut latest_hash := current_hash
 
@@ -63,7 +72,7 @@ fn update_packages() {
             os.exec('git --git-dir ${pkg.path}/.git pull')
 
             updated_package := InstalledPackage{
-                name: name,
+                name: pkg.name,
                 path: pkg.path,
                 version: latest_hash
             }
@@ -84,11 +93,12 @@ fn update_packages() {
 fn get_packages(packages []string, global bool) {
     mut installed_packages := []InstalledPackage
     mut lockfile := read_lockfile() or {
+        println(err)
         create_lockfile()
-
-        eprintln('Lockfile not found.')
         return
     }
+
+    println(lockfile.packages.len)
 
     for i := 0; i < packages.len; i++ {
         package := get_package(packages[i], global)
@@ -107,8 +117,29 @@ fn get_packages(packages []string, global bool) {
 
 fn show_package_information() {
     pkg_info := load_package_file()
+    lockfile := read_lockfile() or {
+        println(err)
+        create_lockfile()
+        return
+    }
+
+    dependencies := pkg_info.packages
+
+    println(lockfile.packages.len)
 
     println('Package name: ${pkg_info.name}')
+    println('Dependencies:')
+    for i := 0; i < dependencies.len; i++ {
+        println('-' + dependencies[i])
+    }
+
+    println('\nInstalled packages:\n')
+
+    for i := 0; i < lockfile.packages.len; i++ {
+        pkg := lockfile.packages[i]
+
+        println('${pkg.name}')
+    }
 }
 
 fn show_version() {
@@ -118,7 +149,7 @@ fn show_version() {
 
 fn show_help() {
     println('VPkg ${Version}')
-    println('Just another package manager for V.')
+    println('An alternative package manager for V.')
 
     println('\nCOMMANDS\n')
 

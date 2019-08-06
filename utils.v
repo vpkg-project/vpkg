@@ -2,16 +2,17 @@ module main
 
 import os
 import json
+import term
 
 fn load_package_file() PkgInfo {
     vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
         eprintln(term.red('No .vpkg.json found.'))
-        return PkgInfo{'', '', '', []string}
+        return PkgInfo{'', []string, '', '', []string}
     }
 
     pkg_info := json.decode(PkgInfo, vpkg_file) or {
         eprintln(term.red('Error decoding .vpkg.json'))
-        return PkgInfo{'', '', '', []string}
+        return PkgInfo{'', []string, '', '', []string}
     }
 
     return pkg_info
@@ -24,59 +25,90 @@ fn check_git_version(dir string) string {
 }
 
 fn read_lockfile() ?Lockfile {
-    empty_lockfile := Lockfile{Version, map[string]InstalledPackage{}}
-
     contents := os.read_file(LockfilePath) or {
-        eprintln('Lockfile not found.')
-
-        return empty_lockfile
+        return error('Project lockfile not found.')
     }
 
     decoded := json.decode(Lockfile, contents) or {
-        eprintln('Error decoding lockfile.')
-
-        return empty_lockfile
+        return error('Unable to decode lockfile.')
     }
 
     return decoded
 }
 
-fn (lock mut Lockfile) regenerate(packages []InstalledPackage) {
-    if lock.version != Version {
-        lock.version = Version
-    }
-
-    for package in packages {
-        lock.packages[package.name] = InstalledPackage{
-            path: package.path,
-            version: package.version
+fn (lock mut Lockfile) find_package(name string) int {
+    for idx, package in lock.packages {
+        if package.name == name {
+            return idx
         }
     }
 
-    contents := json.encode(lock)
+    return -1
+}
 
-    os.write_file(LockfilePath, contents)
+fn (lock mut Lockfile) regenerate(packages []InstalledPackage) {    
+    if lock.version != Version {
+        lock.version = Version
+    }
+ 
+    for package in packages {
+        package_idx := lock.find_package(package.name)
+
+        if package_idx != -1 {
+            lock.packages[package_idx] = InstalledPackage{
+                name: package.name,
+                path: package.path
+                version: package.version
+            }
+        } else {
+            lock.packages << InstalledPackage{
+                name: package.name,
+                path: package.path
+                version: package.version
+            }
+        }
+    }
+
+    // stringify contents
+    mut contents := ['{', '\n', '   "version": "${lock.version}",\n', '   "packages": [\n']
+
+    for i := 0; i < lock.packages.len; i++ {
+        pkg := lock.packages[i]
+
+        contents << '       {\n'
+        contents << '           "name": "${pkg.name}",\n'
+        contents << '           "path": "${pkg.path}",\n'
+        contents << '           "version": "${pkg.version}"\n'
+        contents << '       }'
+
+        if i != lock.packages.len-1 {
+            contents << ',\n'
+        } else {
+            contents << '\n'
+        }
+    }
+
+    contents << '   ]\n'
+    contents << '}'
+
+    os.write_file(LockfilePath, contents.join(''))
+    contents.free()
 }
 
 fn create_lockfile() Lockfile {
-    empty_lockfile := Lockfile{Version, map[string]InstalledPackage{}}
+    lockfile_json_arr := ['{', '\n', '   "version": "${Version}",\n', '   "packages": []\n', '}']
 
     lockfile := os.create(LockfilePath) or {
-        return empty_lockfile
+        return Lockfile{Version, []InstalledPackage}
     }
 
-    lockfile_contents := Lockfile{
-        version: Version,
-        packages: map[string]InstalledPackage{}
-    }
-
-    lockfile_json := json.encode(lockfile_contents)
+    lockfile_json := lockfile_json_arr.join('')
 
     lockfile.write(lockfile_json)
-    lockfile.close()
+    defer { lockfile.close() }
 
     contents := read_lockfile() or {
-        return empty_lockfile
+        return Lockfile{Version, []InstalledPackage}
     }
 
     return contents
@@ -118,6 +150,10 @@ fn package_name(name string) string {
 
     if is_git && name.contains('.git') {
         pkg_name = pkg_name.replace('.git', '')
+    }
+
+    if name.starts_with('v-') {
+        pkg_name = pkg_name.all_after('v-')
     }
 
     return pkg_name
