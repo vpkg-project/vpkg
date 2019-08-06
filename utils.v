@@ -87,7 +87,6 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool) {
 
         contents << '       {\n'
         contents << '           "name": "${pkg.name}",\n'
-        contents << '           "path": "${pkg.path}",\n'
         contents << '           "version": "${pkg.version}"\n'
         contents << '       }'
 
