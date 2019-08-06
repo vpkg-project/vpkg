@@ -51,12 +51,12 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool) {
         lock.version = Version
     }
  
-    if !remove {
+    if remove {
         for package in packages {
             package_idx := lock.find_package(package.name)
 
             if package_idx != -1 {
-                lock.package.delete(package_idx)
+                lock.packages.delete(package_idx)
             }
         }
     } else {
