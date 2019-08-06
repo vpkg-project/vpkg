@@ -136,12 +136,13 @@ fn main() {
     }
 
     match _argv.command {
-        'install' => install_packages(is_global)
         'get' => get_packages(_argv.unknown, is_global)
-        'remove' => remove_packages(_argv.unknown)
         'help' => show_help()
-        'update' => update_packages()
         'info' => show_package_information()
+        'init' => init_pkginfo_json()
+        'install' => install_packages(is_global)
+        'remove' => remove_packages(_argv.unknown)
+        'update' => update_packages()
         'version' => show_version()
         else => show_help()
     }
