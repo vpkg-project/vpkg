@@ -25,6 +25,13 @@ struct PkgInfo {
     packages []string
 }
 
+struct VpmPackage {
+    id int
+    name string
+    url string
+    nr_downloads int
+}
+
 struct Lockfile {
 pub mut:
     version string
