@@ -7,7 +7,7 @@ import json
 import term
 
 const (
-    Version = '0.1'
+    Version = '0.2'
     VLibDir = '/root/code/v/vlib'
     ModulesDir = '${os.getwd()}/modules'
     TmpDir = '${os.getwd()}/.tmp_vpkg'
