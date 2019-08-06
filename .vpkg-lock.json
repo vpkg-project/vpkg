@@ -1,0 +1,15 @@
+{
+   "version": "0.1",
+   "packages": [
+       {
+           "name": "v-args",
+           "path": "/mnt/c/Users/admin/Documents/Coding/vlang/vpkg/modules/args",
+           "version": "26b301be94e504f37c19804c29be0e860f31d7f1"
+       },
+       {
+           "name": "v-mime",
+           "path": "/mnt/c/Users/admin/Documents/Coding/vlang/vpkg/modules/mime",
+           "version": "6bcb9bc94dfe42c2673cab047b3f17ec7501aded"
+       }
+   ]
+}
