@@ -3,7 +3,7 @@ vpkg is a package manager written on [V](https://github.com/vlang/v) for V.
 
 ## The approach
 vpkg's approach is to incorporate the ideas taken from centralized and decentralized package managers.
-- Centralized, popular packages are being listed on to a single [`registry.json`](registry/registry.json) file.
+- Centralized, popular packages are being listed on to a single [`registry.json`](https://github.com/v-pkg/registry/registry.json) file.
 - Uses a single, JSON file for storing package information as well as it's dependencies. (In this case, [`.vpkg.json`](.vpkg.json))
 - Packages stored from the `registry.json` file can be obtained through a simple `vpkg get [package name]` while the rest uses regular Git URLs.
 
@@ -12,11 +12,18 @@ But there are some things that make's vpkg unique:
 - Instead of installing many modules per project, it shares the common modules to reduce project file size and download times.
 
 ### TODO
-- Integration of the main Vlang package registry server.
+- Integration of the main Vlang package registry server (Currently disabled due to malformed JSON responses).
 
-## Development
-1. Download and install [v-args](https://github.com/nedpals/v-args) and place it into the folder where your vpkg source code is located.
-2. Run the registry server using `http-server` or similar tools.
+## Installation
+- Build it first from source.
+- Execute `./vpkg install` or `./vpkg.exe install` (fow windows)
+
+## Building from Source
+Make sure you have the latest version of V installed and build by just typing:
+```
+v .
+```
+
 
 ## Copyright
 (C) 2019 [Ned Palacios](https://github.com/nedpals)
