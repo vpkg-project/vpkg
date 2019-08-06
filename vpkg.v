@@ -14,29 +14,63 @@ const (
     LockfilePath = '${os.getwd()}/.vpkg-lock.json'
 )
 
-fn fetch_from_registry(name string, global bool) InstalledPackage {
-    mut found_pkg := false
-    mut pkg := Package{'', '', ''}
-    mut dl_pkg := InstalledPackage{'', '', ''}
+fn search_from_vpm(name string) Package {
+    println('Searching package on VPM...')
+
+    resp := http.get('https://vpm.best/jsmod/${name}') or {
+        eprintln('Cannot fetch from registry server')
+        return Package{}
+    }
+
+    repo := json.decode(VpmPackage, resp.text) or {
+        eprintln('Failed to read repo.json')
+        return Package{}
+    }
+
+
+    return Package{
+        name: repo.name,
+        url: repo.url,
+        method: if is_git_url(repo.url) { 'git' } else { 'http' }
+    }
+}
+
+fn search_from_registry(name string) Package {
+    print('Searching package on registry...')
 
     resp := http.get('https://v-pkg.github.io/registry/registry.json') or {
         eprintln('Cannot fetch from registry server')
-        return dl_pkg
+        return Package{}
     }
 
     repo := json.decode(Registry, resp.text) or {
         eprintln('Failed to read repo.json')
-        return dl_pkg
+        return Package{}
     }
 
-    for i := 0; i < repo.packages.len; i++ {
-        current_pkg := repo.packages[i]
-
+    for current_pkg in repo.packages {
         if current_pkg.name == name {
-            found_pkg = true
-            pkg = current_pkg
+            return current_pkg
         }
     }
+
+    return Package{}
+}
+
+fn fetch_from_registry(name string, global bool) InstalledPackage {
+    mut pkg := Package{}
+    mut dl_pkg := InstalledPackage{}
+
+    // search first in vpm
+    // TODO: Malformed response
+    // pkg = search_from_vpm(name)
+    pkg = search_from_registry(name)
+
+
+    // if nothing found
+    // if pkg.name.len == 0 {
+    //     pkg = search_from_registry(name)
+    // }
 
     if pkg.method == 'git' {
         dl_pkg = fetch_from_git(pkg.url, global)
