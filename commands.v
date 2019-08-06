@@ -14,7 +14,7 @@ fn install_packages(global bool) {
 }
 
 fn remove_packages(packages []string) {
-    mut removed_packages := []string
+    mut removed_packages := []InstalledPackage
     mut lockfile := read_lockfile() or {
         println(err)
         return
@@ -25,25 +25,13 @@ fn remove_packages(packages []string) {
         status := delete_package_contents('${ModulesDir}/${pkg_name}')
 
         if status {
-            removed_packages << package
-        }
-    }
-
-    for package in removed_packages {
-        mut pkg_index := 0
-
-        for idx, lock_package in lockfile.packages {
-            if lock_package.name == package {
-                pkg_index = idx
+            removed_packages << InstalledPackage{
+                name: package
             }
         }
-
-        lockfile.packages.delete(pkg_index)
     }
 
-    empty_packages := []InstalledPackage
-
-    lockfile.regenerate(empty_packages)
+    lockfile.regenerate(removed_packages, true)
 
     println('${removed_packages.len} packages were removed.')
 }
