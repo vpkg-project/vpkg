@@ -69,7 +69,7 @@ fn update_packages() {
         }
     }
 
-    lockfile.regenerate(updated_packages)
+    lockfile.regenerate(updated_packages, false)
 
     for package in updated_packages {
         println('${package.name}@${package.version}')
@@ -86,15 +86,13 @@ fn get_packages(packages []string, global bool) {
         return
     }
 
-    println(lockfile.packages.len)
-
     for i := 0; i < packages.len; i++ {
         package := get_package(packages[i], global)
 
         installed_packages << package
     }
 
-    lockfile.regenerate(installed_packages)
+    lockfile.regenerate(installed_packages, false)
 
     for package in installed_packages {
         println('${package.name}@${package.version}')
