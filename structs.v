@@ -13,7 +13,7 @@ struct Package {
 struct InstalledPackage {
 pub mut:
     name string
-    path string
+    path string   [skip]
     version string
 }
 
