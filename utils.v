@@ -46,25 +46,35 @@ fn (lock mut Lockfile) find_package(name string) int {
     return -1
 }
 
-fn (lock mut Lockfile) regenerate(packages []InstalledPackage) {    
+fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool) {    
     if lock.version != Version {
         lock.version = Version
     }
  
-    for package in packages {
-        package_idx := lock.find_package(package.name)
+    if !remove {
+        for package in packages {
+            package_idx := lock.find_package(package.name)
 
-        if package_idx != -1 {
-            lock.packages[package_idx] = InstalledPackage{
-                name: package.name,
-                path: package.path
-                version: package.version
+            if package_idx != -1 {
+                lock.package.delete(package_idx)
             }
-        } else {
-            lock.packages << InstalledPackage{
-                name: package.name,
-                path: package.path
-                version: package.version
+        }
+    } else {
+        for package in packages {
+            package_idx := lock.find_package(package.name)
+
+            if package_idx != -1 {
+                lock.packages[package_idx] = InstalledPackage{
+                    name: package.name,
+                    path: package.path
+                    version: package.version
+                }
+            } else {
+                lock.packages << InstalledPackage{
+                    name: package.name,
+                    path: package.path
+                    version: package.version
+                }
             }
         }
     }
