@@ -9,7 +9,7 @@ import term
 const (
     Version = '0.2'
     VLibDir = '/root/code/v/vlib'
-    ModulesDir = '${os.getwd()}/modules'
+    ModulesDir = '${os.getwd()}'
     TmpDir = '${os.getwd()}/.tmp_vpkg'
     LockfilePath = '${os.getwd()}/.vpkg-lock.json'
 )
