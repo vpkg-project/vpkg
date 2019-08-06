@@ -15,13 +15,15 @@ But there are some things that make's vpkg unique:
 - Integration of the main Vlang package registry server (Currently disabled due to malformed JSON responses).
 
 ## Installation
-- Build it first from source.
-- Execute `./vpkg install` or `./vpkg.exe install` (fow windows)
+- Clone the repo.
+- Download and install [v-args](https://github.com/nedpals/v-args) and place it into the folder where your vpkg source code is located.
+- Build it from source.
 
 ## Building from Source
-Make sure you have the latest version of V installed and build by just typing:
 ```
-v .
+git clone https://github.com/v-pkg/vpkg.git
+cd vpkg/
+v -prod .
 ```
 
 
