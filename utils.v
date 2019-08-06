@@ -187,3 +187,13 @@ fn is_git_url(a string) bool {
 
     return false
 }
+
+fn print_status(packages []InstalledPackage, status_type string) {
+    mut package_word := 'package'
+
+    if packages.len > 1 {
+        package_word = 'packages'
+    }
+
+    println('${packages.len} ${package_word} was ${status_type} successfully.')
+}

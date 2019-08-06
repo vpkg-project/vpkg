@@ -54,7 +54,7 @@ fn remove_packages(packages []string) {
 
     lockfile.regenerate(removed_packages, true)
 
-    println('${removed_packages.len} packages were removed.')
+    print_status(removed_packages, 'removed')
 }
 
 // TODO: Update packages
@@ -96,7 +96,7 @@ fn update_packages() {
         println('${package.name}@${package.version}')
     }
 
-    println('${updated_packages.len} packages were updated successfully')
+    print_status(updated_packages, 'updated')
 }
 
 fn get_packages(packages []string, global bool) {
@@ -119,7 +119,7 @@ fn get_packages(packages []string, global bool) {
         println('${package.name}@${package.version}')
     }
 
-    println('${installed_packages.len} packages were installed successfully.')
+    print_status(installed_packages, 'installed')
 }
 
 fn show_package_information() {
