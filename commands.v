@@ -132,20 +132,18 @@ fn show_package_information() {
 
     dependencies := pkg_info.packages
 
-    println(lockfile.packages.len)
-
-    println('Package name: ${pkg_info.name}')
-    println('Dependencies:')
+    println('Package name: ${pkg_info.name}@${pkg_info.version}')
+    println('\nDependencies:')
     for i := 0; i < dependencies.len; i++ {
-        println('-' + dependencies[i])
+        println('- ' + dependencies[i])
     }
 
-    println('\nInstalled packages:\n')
+    println('\nInstalled packages:')
 
     for i := 0; i < lockfile.packages.len; i++ {
         pkg := lockfile.packages[i]
 
-        println('${pkg.name}')
+        println('- ${pkg.name}@${pkg.version}')
     }
 }
 
