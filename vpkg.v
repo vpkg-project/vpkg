@@ -15,8 +15,6 @@ const (
 )
 
 fn search_from_vpm(name string) Package {
-    println('Searching package on VPM...')
-
     resp := http.get('https://vpm.best/jsmod/${name}') or {
         eprintln('Cannot fetch from VPM')
         return Package{}
@@ -36,8 +34,6 @@ fn search_from_vpm(name string) Package {
 }
 
 fn search_from_registry(name string) Package {
-    print('Searching package on registry...')
-
     resp := http.get('https://v-pkg.github.io/registry/registry.json') or {
         eprintln('Cannot fetch from registry server')
         return Package{}
@@ -61,11 +57,8 @@ fn fetch_from_registry(name string, global bool) InstalledPackage {
     mut pkg := Package{}
     mut dl_pkg := InstalledPackage{}
 
-    // search first in vpm
     pkg = search_from_vpm(name)
 
-
-    // if nothing found
     if pkg.name.len == 0 {
         pkg = search_from_registry(name)
     }
