@@ -10,7 +10,6 @@ const (
     Version = '0.3'
     GlobalModulesDir = '${os.home_dir()}/.vmodules'
     ModulesDir = '${os.getwd()}'
-    TmpDir = '${os.getwd()}/.tmp_vpkg'
     LockfilePath = '${os.getwd()}/.vpkg-lock.json'
 )
 
