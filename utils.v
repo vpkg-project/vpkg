@@ -82,9 +82,7 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool) {
     // stringify contents
     mut contents := ['{', '\n', '   "version": "${lock.version}",\n', '   "packages": [\n']
 
-    for i := 0; i < lock.packages.len; i++ {
-        pkg := lock.packages[i]
-
+    for i, pkg in lock.packages {
         contents << '       {\n'
         contents << '           "name": "${pkg.name}",\n'
         contents << '           "version": "${pkg.version}"\n'
@@ -127,8 +125,7 @@ fn create_lockfile() Lockfile {
 fn delete_package_contents(path string) bool {
     mut folder_contents := os.ls(path)
 
-    for i := 0; i < folder_contents.len; i++ {
-        filename := folder_contents[i]
+    for filename in folder_contents {
         filepath := '${path}/${filename}'
 
         if os.dir_exists(filepath) {
@@ -179,8 +176,8 @@ fn create_modules_dir() string {
 fn is_git_url(a string) bool {
     protocols := ['https://', 'git://']
 
-    for i := 0; i < protocols.len; i++ {
-        if a.starts_with(protocols[i]) {
+    for protocol in protocols {
+        if a.starts_with(protocol) {
             return true
         }
     }
