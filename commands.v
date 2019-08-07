@@ -53,11 +53,9 @@ fn remove_packages(packages []string) {
     }
 
     lockfile.regenerate(removed_packages, true)
-
     print_status(removed_packages, 'removed')
 }
 
-// TODO: Update packages
 fn update_packages() {    
     mut updated_packages := []InstalledPackage
 
