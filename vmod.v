@@ -260,16 +260,16 @@ fn (s mut VModScanner) parse() VModPkgInfo {
         panic('incorrect v.mod')
     }
 
-    for i := 0; i < ast.len; i++ {
+    if ast_type(ast[0].@type) == 'module_keyword' && ast_type(ast[1].@type) == 'lcbr' {
+        has_started = true
+    }
+
+    for i := 0; has_started != false; i++ {
         current_ast := ast[i]
         next_ast := if i+1 < ast.len { ast[i+1] } else { ResolveScan{} }
 
         c_ast_type := ast_type(current_ast.@type)
         n_ast_type := ast_type(next_ast.@type)
-
-        if c_ast_type == 'module_keyword' && n_ast_type == 'lcbr' {
-             has_started = true
-        }
 
         if c_ast_type == 'name' && n_ast_type == 'colon' {
             next_next := ast[i+2]
