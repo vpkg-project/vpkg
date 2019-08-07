@@ -110,6 +110,10 @@ fn get_package(name string, global bool) InstalledPackage {
         } else {
             data = fetch_from_registry(name, global)
         }
+
+        if data.name.len == 0 {
+            println('Package \'${name}\' not found.')
+        }
     }
 
     return data
