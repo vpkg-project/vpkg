@@ -138,8 +138,9 @@ fn show_package_information() {
 }
 
 fn show_version() {
-    println('vpkg ${Version}')
-    println(os.user_os())
+    println('VPkg ${Version} - ${os.user_os()}')
+    println('Repo: https://github.com/v-pkg/vpkg \n')
+    println('2019 (c) Ned Palacios and it\'s contributors.')
 }
 
 fn show_help() {
