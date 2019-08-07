@@ -1,11 +1,11 @@
-// some of the code snippets taken from: https://github.com/vlang/v/blob/master/compiler/scanner.v
+// some of the code snippets taken from: https://github.com/vlang/v/blob/mtokenser/compiler/scanner.v
 
 module main
 
 import os
 
-enum TokenTypes {
-    module_keyword lcbr rcbr labr comma rabr colon eof str name newline c_return
+enum Lexeme {
+    module_keyword lcbr rcbr labr comma rabr colon eof str name newline
 }
 
 struct VModPkgInfo {
@@ -24,16 +24,49 @@ mut:
     started bool
 }
 
-struct ResolveScan {
-    @type TokenTypes
+struct Token {
+    @type Lexeme
     val string
 }
 
-fn resolve(t_type TokenTypes, val string) ResolveScan {
-    return ResolveScan{t_type, val}
+fn new_scanner(vmod_path string) VModScanner {
+    if !os.file_exists(vmod_path) {
+        panic('v.mod not found.')
+    }
+
+    raw_vmod_contents := os.read_file(vmod_path) or {
+        panic('cannot parse v.mod')
+        return VModScanner{}
+    }
+
+    scanner := VModScanner{
+        pos: 0,
+        path: vmod_path,
+        text: raw_vmod_contents
+    }
+
+    return scanner
 }
 
-fn (s mut VModScanner) ident_string() string {
+fn tokenize(t_type Lexeme, val string) Token {
+    return Token{t_type, val}
+}
+
+fn (s mut VModScanner) skip_whitespace() {
+	for s.pos < s.text.len && s.text[s.pos].is_white() {
+		s.pos++
+	}
+}
+
+fn is_newline(c byte) bool {
+	return c == `\r` || c == `\n`
+}
+
+fn is_name_alpha(chr byte) bool {
+    return chr.is_letter() || chr == `_`
+}
+
+fn (s mut VModScanner) create_string() string {
 	mut start := s.pos
 	s.inside_text = false
 	slash := `\\`
@@ -64,37 +97,7 @@ fn (s mut VModScanner) ident_string() string {
 	return lit
 }
 
-
-fn new_scanner(vmod_path string) VModScanner {
-    if !os.file_exists(vmod_path) {
-        panic('v.mod not found.')
-    }
-
-    raw_vmod_contents := os.read_file(vmod_path) or {
-        panic('cannot parse v.mod')
-        return VModScanner{}
-    }
-
-    scanner := VModScanner{
-        pos: 0,
-        path: vmod_path,
-        text: raw_vmod_contents
-    }
-
-    return scanner
-}
-
-fn (s mut VModScanner) skip_whitespace() {
-	for s.pos < s.text.len && s.text[s.pos].is_white() {
-		s.pos++
-	}
-}
-
-fn is_name_alpha(chr byte) bool {
-    return chr.is_letter() || chr == `_`
-}
-
-fn (s mut VModScanner) ident_name() string {
+fn (s mut VModScanner) create_identifier() string {
 	start := s.pos
 	for {
 		s.pos++
@@ -111,22 +114,16 @@ fn (s mut VModScanner) ident_name() string {
 	return name
 }
 
-fn is_nl(c byte) bool {
-	return c == `\r` || c == `\n`
-}
-
-fn get_array_contents(ast []ResolveScan, start_pos int) []string {
+fn get_array_contents(tokens []Token, start_pos int) []string {
     mut inside_array := true
     mut contents := []string
 
     for i := start_pos; inside_array != false; i++ {
-        if ast_type(ast[i].@type) == 'str' {
-            println(ast[i].val)
-
-            contents << ast[i].val
+        if token_type(tokens[i].@type) == 'str' {
+            contents << tokens[i].val
         }
 
-        if ast_type(ast[i+1].@type) == 'rabr' {
+        if token_type(tokens[i+1].@type) == 'rabr' {
             inside_array = false
         }
     }
@@ -134,7 +131,34 @@ fn get_array_contents(ast []ResolveScan, start_pos int) []string {
     return contents
 }
 
-fn (s mut VModScanner) scan() ResolveScan {
+fn token_type(t_type Lexeme) string {
+    mut token_type := 'name'
+
+    switch t_type {
+        case Lexeme.module_keyword:
+            token_type = 'module_keyword'
+        case Lexeme.lcbr:
+            token_type = 'lcbr'
+        case Lexeme.rcbr:
+            token_type = 'rcbr'
+        case Lexeme.labr:
+            token_type = 'labr'
+        case Lexeme.rabr:
+            token_type = 'rabr'
+        case Lexeme.colon:
+            token_type = 'colon'
+        case Lexeme.eof:
+            token_type = 'eof'
+        case Lexeme.str:
+            token_type = 'str'
+        case Lexeme.name:
+            token_type = 'name'
+    }
+
+    return token_type
+}
+
+fn (s mut VModScanner) scan() Token {
     if s.started && s.pos != s.text.len-1 {
         s.pos++
     }
@@ -159,7 +183,7 @@ fn (s mut VModScanner) scan() ResolveScan {
     }
 
     if is_name_alpha(char) {
-        name := s.ident_name()
+        name := s.create_identifier()
         _next := if s.pos + 1 < s.text.len { s.text[s.pos + 1] } else { `\0` }
 
         if s.inside_text {
@@ -174,110 +198,83 @@ fn (s mut VModScanner) scan() ResolveScan {
 		}
 
         if name == 'Module' {
-            return resolve(.module_keyword, name)
+            return tokenize(.module_keyword, name)
         } else {
-            return resolve(.name, name)
+            return tokenize(.name, name)
         }
     }
 
     switch char {
         case `{`:
             if s.inside_text { return s.scan() }
-            return resolve(.lcbr, '')
+            return tokenize(.lcbr, '')
         case `}`:
             if s.inside_text {
                 s.pos++
 
                 if s.text[s.pos] == `\'` {
                     s.inside_text = false
-                    return resolve(.str, '')
+                    return tokenize(.str, '')
                 }
-                return resolve(.str, s.ident_string())
+                return tokenize(.str, s.create_string())
             }
             else {
-                return resolve(.rcbr, '')
+                return tokenize(.rcbr, '')
             }
         case `\'`:
-            return resolve(.str, s.ident_string())
+            return tokenize(.str, s.create_string())
         case `[`:
-            return resolve(.labr, '')
+            return tokenize(.labr, '')
         case `]`:
-            return resolve(.rabr, '')
+            return tokenize(.rabr, '')
         case `,`:
-            return resolve(.comma, '')
+            return tokenize(.comma, '')
         case `\r`:
             if next_char == `\n` {
                 s.pos++
-                return resolve(.newline, '')
+                return tokenize(.newline, '')
             }
         case `\n`:
-            return resolve(.newline, '')
+            return tokenize(.newline, '')
         case `:`:
-            return resolve(.colon, '')
+            return tokenize(.colon, '')
     }
 
-    return resolve(.eof, '')
-}
-
-fn ast_type(t_type TokenTypes) string {
-    mut ast_type := 'name'
-
-    switch t_type {
-        case TokenTypes.module_keyword:
-            ast_type = 'module_keyword'
-        case TokenTypes.lcbr:
-            ast_type = 'lcbr'
-        case TokenTypes.rcbr:
-            ast_type = 'rcbr'
-        case TokenTypes.labr:
-            ast_type = 'labr'
-        case TokenTypes.rabr:
-            ast_type = 'rabr'
-        case TokenTypes.colon:
-            ast_type = 'colon'
-        case TokenTypes.eof:
-            ast_type = 'eof'
-        case TokenTypes.str:
-            ast_type = 'str'
-        case TokenTypes.name:
-            ast_type = 'name'
-    }
-
-    return ast_type
+    return tokenize(.eof, '')
 }
 
 fn (s mut VModScanner) parse() VModPkgInfo {
-    mut ast := []ResolveScan
+    mut tokens := []Token
     mut pkg_info := VModPkgInfo{}
 
     mut has_started := false
 
     for i := -1; s.pos != s.text.len-1; i++ {
-        ast << s.scan()
+        tokens << s.scan()
     }
 
-    if ast[0].@type != .module_keyword {
+    if tokens[0].@type != .module_keyword {
         panic('incorrect v.mod')
     }
 
-    if ast_type(ast[0].@type) == 'module_keyword' && ast_type(ast[1].@type) == 'lcbr' {
+    if token_type(tokens[0].@type) == 'module_keyword' && token_type(tokens[1].@type) == 'lcbr' {
         has_started = true
     }
 
     for i := 0; has_started != false; i++ {
-        current_ast := ast[i]
-        next_ast := if i+1 < ast.len { ast[i+1] } else { ResolveScan{} }
+        current_tokens := tokens[i]
+        next_tokens := if i+1 < tokens.len { tokens[i+1] } else { Token{} }
 
-        c_ast_type := ast_type(current_ast.@type)
-        n_ast_type := ast_type(next_ast.@type)
+        c_token_type := token_type(current_tokens.@type)
+        n_token_type := token_type(next_tokens.@type)
 
-        if c_ast_type == 'name' && n_ast_type == 'colon' {
-            next_next := ast[i+2]
+        if c_token_type == 'name' && n_token_type == 'colon' {
+            next_next := tokens[i+2]
             
-            if ast_type(next_next.@type) == 'str' {
+            if token_type(next_next.@type) == 'str' {
                 value := next_next.val
 
-                switch current_ast.val {
+                switch current_tokens.val {
                     case 'name':
                         pkg_info.name = value
                     case 'version':
@@ -285,23 +282,21 @@ fn (s mut VModScanner) parse() VModPkgInfo {
                 }
             }
 
-            if ast_type(next_next.@type) == 'labr' {
-                switch current_ast.val {
+            if token_type(next_next.@type) == 'labr' {
+                switch current_tokens.val {
                     case 'deps':
-                        pkg_info.deps = get_array_contents(ast, i+2)
+                        pkg_info.deps = get_array_contents(tokens, i+2)
                 }
             }
         }
 
-        if c_ast_type == 'rcbr' && n_ast_type == 'eof' {
+        if c_token_type == 'rcbr' || n_token_type == 'eof' {
             has_started = false
         }
     }
 
     return pkg_info
 }
-
-
 
 pub fn open_vmod(vmod_path string) PkgInfo {
     mut sc := new_scanner(vmod_path)
