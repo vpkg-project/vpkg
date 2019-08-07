@@ -3,7 +3,7 @@ vpkg is a package manager written on [V](https://github.com/vlang/v) for V.
 
 ## The approach
 vpkg's approach is to incorporate the ideas taken from centralized and decentralized package managers.
-- Centralized, popular packages are being listed on to a single [`registry.json`](https://github.com/v-pkg/registry/registry.json) file.
+- Centralized, popular packages are being listed on to a single [`registry.json`](https://github.com/v-pkg/registry/tree/master/registry.json) file.
 - Uses a single, JSON file for storing package information as well as it's dependencies. (In this case, [`.vpkg.json`](.vpkg.json))
 - Packages stored from the `registry.json` file can be obtained through a simple `vpkg get [package name]` while the rest uses regular Git URLs.
 
@@ -12,7 +12,8 @@ But there are some things that make's vpkg unique:
 - Instead of installing many modules per project, it shares the common modules to reduce project file size and download times.
 
 ### TODO
-- `v.mod` support
+- `v.mod` support (needs code refactor and cleanup. now on [`vmod_support`](https://github.com/v-pkg/vpkg/tree/vmod_support))
+- ability to publish and search packages in VPM and VPKG registry.
 
 ## Installation
 - Clone the repo.
