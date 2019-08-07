@@ -14,6 +14,7 @@ But there are some things that make's vpkg unique:
 ### TODO
 - `v.mod` support (needs code refactor and cleanup. now on [`vmod_support`](https://github.com/v-pkg/vpkg/tree/vmod_support))
 - ability to publish and search packages in VPM and VPKG registry.
+- recursive installation of dependencies of packages.
 
 ## Installation
 - Clone the repo.
