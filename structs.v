@@ -11,7 +11,7 @@ struct Package {
 }
 
 struct InstalledPackage {
-pub mut:
+mut:
     name string
     path string   [skip]
     version string
@@ -33,7 +33,7 @@ struct VpmPackage {
 }
 
 struct Lockfile {
-pub mut:
+mut:
     version string
     packages []InstalledPackage
 }
