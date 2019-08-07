@@ -18,7 +18,7 @@ fn search_from_vpm(name string) Package {
     println('Searching package on VPM...')
 
     resp := http.get('https://vpm.best/jsmod/${name}') or {
-        eprintln('Cannot fetch from registry server')
+        eprintln('Cannot fetch from VPM')
         return Package{}
     }
 
@@ -62,15 +62,13 @@ fn fetch_from_registry(name string, global bool) InstalledPackage {
     mut dl_pkg := InstalledPackage{}
 
     // search first in vpm
-    // TODO: Malformed response
-    // pkg = search_from_vpm(name)
-    pkg = search_from_registry(name)
+    pkg = search_from_vpm(name)
 
 
     // if nothing found
-    // if pkg.name.len == 0 {
-    //     pkg = search_from_registry(name)
-    // }
+    if pkg.name.len == 0 {
+        pkg = search_from_registry(name)
+    }
 
     if pkg.method == 'git' {
         dl_pkg = fetch_from_git(pkg.url, global)
