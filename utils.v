@@ -188,6 +188,12 @@ fn is_git_url(a string) bool {
 fn print_status(packages []InstalledPackage, status_type string) {
     mut package_word := 'package'
 
+    if status_type != 'removed' {
+        for package in packages {
+            println('${package.name}@${package.version}')
+        }
+    }
+
     if packages.len > 1 {
         package_word = 'packages'
     }

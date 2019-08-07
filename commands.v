@@ -91,11 +91,6 @@ fn update_packages() {
     }
 
     lockfile.regenerate(updated_packages, false)
-
-    for package in updated_packages {
-        println('${package.name}@${package.version}')
-    }
-
     print_status(updated_packages, 'updated')
 }
 
@@ -116,11 +111,6 @@ fn get_packages(packages []string, global bool) {
     }
 
     lockfile.regenerate(installed_packages, false)
-
-    for package in installed_packages {
-        println('${package.name}@${package.version}')
-    }
-
     print_status(installed_packages, 'installed')
 }
 
