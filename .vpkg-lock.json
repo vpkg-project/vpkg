@@ -1,9 +1,9 @@
 {
-   "version": "0.2",
+   "version": "0.3",
    "packages": [
        {
            "name": "v-args",
-           "version": "c06324a99f584eb312d0153e1c51ba7ead4a16f3"
+           "version": "26b301be94e504f37c19804c29be0e860f31d7f1"
        }
    ]
 }
