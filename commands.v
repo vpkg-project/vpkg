@@ -72,17 +72,19 @@ fn update_packages() {
 
     for pkg in lockfile.packages {
         current_hash := pkg.version
+        pkg_name := package_name(pkg.name)
+        pkg_location := '${ModulesDir}/${pkg_name}'
+
         mut latest_hash := current_hash
 
-        os.exec('git --git-dir ${pkg.path}/.git fetch')
-        latest_hash = check_git_version(pkg.path)
+        os.exec('git -C ${pkg_location} fetch')
+        latest_hash = check_git_version(pkg_location)
 
         if current_hash != latest_hash {
-            os.exec('git --git-dir ${pkg.path}/.git pull')
+            os.exec('git -C ${pkg_location} pull')
 
             updated_package := InstalledPackage{
                 name: pkg.name,
-                path: pkg.path,
                 version: latest_hash
             }
 
