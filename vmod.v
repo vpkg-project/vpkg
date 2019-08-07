@@ -293,7 +293,7 @@ fn (s mut VModScanner) parse() VModPkgInfo {
             }
         }
 
-        if c_ast_type == 'rcbr' {
+        if c_ast_type == 'rcbr' && n_ast_type == 'eof' {
             has_started = false
         }
     }
