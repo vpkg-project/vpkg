@@ -159,5 +159,5 @@ fn show_help() {
     println('version                            Prints the Version of this program.')
 
     println('\nOPTIONS\n')
-    println('--global, -g                       Installs the modules/packages into the vlib folder.')
+    println('--global, -g                       Installs the modules/packages into the `.vmodules` folder.')
 }
