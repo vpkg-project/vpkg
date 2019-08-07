@@ -12,7 +12,7 @@ But there are some things that make's vpkg unique:
 - Instead of installing many modules per project, it shares the common modules to reduce project file size and download times.
 
 ### TODO
-- Integration of the main Vlang package registry server (Currently disabled due to malformed JSON responses).
+- `v.mod` support
 
 ## Installation
 - Clone the repo.

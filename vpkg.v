@@ -7,7 +7,7 @@ import json
 import term
 
 const (
-    Version = '0.2'
+    Version = '0.3'
     GlobalModulesDir = '${os.home_dir()}/.vmodules'
     ModulesDir = '${os.getwd()}'
     TmpDir = '${os.getwd()}/.tmp_vpkg'
