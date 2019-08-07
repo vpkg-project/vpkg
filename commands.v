@@ -26,7 +26,9 @@ fn init_pkginfo_json() {
 }
 
 fn install_packages(global bool) {
-    pkg_info := load_package_file()
+    pkg_info := load_package_file() or {
+        return
+    }
 
     println('Installing packages')
     packages := pkg_info.dependencies
@@ -125,7 +127,10 @@ fn get_packages(packages []string, global bool) {
 }
 
 fn show_package_information() {
-    pkg_info := load_package_file()
+    pkg_info := load_package_file() or {
+        return
+    }
+
     lockfile := read_lockfile() or {
         println(err)
         create_lockfile()

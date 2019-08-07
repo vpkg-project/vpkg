@@ -4,18 +4,24 @@ import os
 import json
 import term
 
-fn load_package_file() PkgInfo {
-    vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
-        eprintln(term.red('No .vpkg.json found.'))
-        return PkgInfo{'', []string, '', '', []string}
+fn load_package_file() ?PkgInfo {
+    if os.file_exists('${os.getwd()}/v.mod') {
+        return open_vmod('${os.getwd()}/v.mod')
+    } else {
+        vpkg_file := os.read_file('${os.getwd()}/.vpkg.json') or {
+            eprintln(term.red('No .vpkg.json found.'))
+            return error('No .vpkg.json found.')
+        }
+
+        pkg_info := json.decode(PkgInfo, vpkg_file) or {
+            eprintln(term.red('Error decoding .vpkg.json'))
+            return error('Error decoding .vpkg.json')
+        }
+
+        return pkg_info
     }
 
-    pkg_info := json.decode(PkgInfo, vpkg_file) or {
-        eprintln(term.red('Error decoding .vpkg.json'))
-        return PkgInfo{'', []string, '', '', []string}
-    }
-
-    return pkg_info
+    return error('Package manifest file not found.')
 }
 
 fn check_git_version(dir string) string {
