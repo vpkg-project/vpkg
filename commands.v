@@ -110,7 +110,9 @@ fn get_packages(packages []string, global bool) {
     for i := 0; i < packages.len; i++ {
         package := get_package(packages[i], global)
 
-        installed_packages << package
+        if package.name.len != 0 {
+            installed_packages << package
+        }
     }
 
     lockfile.regenerate(installed_packages, false)
