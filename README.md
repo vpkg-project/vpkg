@@ -22,8 +22,8 @@ COMMANDS
 get [packages]                     Fetch and installs packages from the registry or the git repo.
 help                               Prints this help message.
 info                               Show project's package information.
-init [--format=vpkg|vmod]          Create a ".vpkg.json" manifest file into the current directory.
-install                            Reads the ".vpkg.json" file and installs the necessary packages.
+init [--format=vpkg|vmod]          Creates a package manifest file into the current directory. Defaults to "vpkg".
+install                            Reads the package manifest file and installs the necessary packages.
 remove [packages]                  Removes packages
 update                             Updates packages.
 version                            Prints the Version of this program.
