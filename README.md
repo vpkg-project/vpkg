@@ -15,14 +15,14 @@ An alternative package manager for V.
 
 USAGE
 
-vpkg <COMMAND> [ARGS...] [-g]
+vpkg <COMMAND> [ARGS...] [options]
 
 COMMANDS
 
 get [packages]                     Fetch and installs packages from the registry or the git repo.
 help                               Prints this help message.
 info                               Show project's package information.
-init                               Create a ".vpkg.json" manifest file into the current directory.
+init [--format=vpkg|vmod]          Create a ".vpkg.json" manifest file into the current directory.
 install                            Reads the ".vpkg.json" file and installs the necessary packages.
 remove [packages]                  Removes packages
 update                             Updates packages.
