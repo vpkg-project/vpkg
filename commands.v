@@ -4,26 +4,44 @@ import os
 import term
 import args
 
-fn init_pkginfo_json() {
-    mut vpkg_json_contents := ['{', '\n']
-    pkg_name := os.dir(os.getwd())
+fn init_pkginfo_json(mode string) {
+    pkg_name := os.filename(os.getwd())
+    
+    mut pkg_manifest_contents := []string
+    mut manifest_filename := '.vpkg.json'
 
-    vpkg_json_contents << '   "name": "${pkg_name}",\n'
-    vpkg_json_contents << '   "version": "${Version}"\n'
-    vpkg_json_contents << '   "author": ["Author Name <author@example.com>"],\n'
-    vpkg_json_contents << '   "repo": "https://github.com/username/repo",\n'
-    vpkg_json_contents << '   "dependencies": []\n'
-    vpkg_json_contents << '}'
+    switch mode {
+        case 'vpkg':
+            pkg_manifest_contents << '{\n   "name": "${pkg_name}",\n'
+            pkg_manifest_contents << '   "version": "1.0"\n'
+            pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],\n'
+            pkg_manifest_contents << '   "repo": "https://github.com/username/repo",\n'
+            pkg_manifest_contents << '   "dependencies": []\n'
+            pkg_manifest_contents << '}' 
+        case 'vmod':
+            manifest_filename = 'v.mod'
+            pkg_manifest_contents << 'Module {\n   name: \'${pkg_name}\',\n'
+            pkg_manifest_contents << '   version: \'1.0\'\n'
+            pkg_manifest_contents << '   dependencies: []\n'
+            pkg_manifest_contents << '}' 
+        default:
+            pkg_manifest_contents << '{\n   "name": "${pkg_name}",\n'
+            pkg_manifest_contents << '   "version": "1.0"\n'
+            pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],\n'
+            pkg_manifest_contents << '   "repo": "https://github.com/username/repo",\n'
+            pkg_manifest_contents << '   "dependencies": []\n'
+            pkg_manifest_contents << '}' 
+    }
 
-    vpkg_json := os.create('${ModulesDir}/.vpkg.json') or {
-        eprintln('.vpkg.json file was not created successfully.')
+    manifest_data := os.create('${ModulesDir}/${manifest_filename}') or {
+        eprintln('Package manifest file was not created successfully.')
         return
     }
-    
-    vpkg_json.write(vpkg_json_contents.join(''))
-    defer { vpkg_json.close() }
 
-    println('.vpkg.json file was create successfully.')
+    manifest_data.write(pkg_manifest_contents.join(''))
+    defer { manifest_data.close() }
+
+    println('Package manifest file was created successfully.')
 }
 
 fn install_packages(global bool) {
@@ -152,15 +170,15 @@ fn show_help() {
     println('An alternative package manager for V.')
 
     println('\nUSAGE\n')
-    println('vpkg <COMMAND> [ARGS...] [-g]')
+    println('vpkg <COMMAND> [ARGS...] [options]')
 
     println('\nCOMMANDS\n')
 
     println('get [packages]                     Fetch and installs packages from the registry or the git repo.')
     println('help                               Prints this help message.')
     println('info                               Show project\'s package information.')
-    println('init                               Create a ".vpkg.json" manifest file into the current directory.')
-    println('install                            Reads the ".vpkg.json" file and installs the necessary packages.')
+    println('init [--format=vpkg|vmod]          Creates a package manifest file into the current directory. Defaults to "vpkg".')
+    println('install                            Reads the package manifest file and installs the necessary packages.')
     println('remove [packages]                  Removes packages')
     println('update                             Updates packages.')
     println('version                            Prints the Version of this program.')

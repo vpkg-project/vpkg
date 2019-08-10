@@ -129,11 +129,17 @@ fn main() {
         false
     }
 
+    manifest_format := if 'format' in _argv.options {
+        _argv.options['format']
+    } else {
+        ''
+    }
+
     match _argv.command {
         'get' => get_packages(_argv.unknown, is_global)
         'help' => show_help()
         'info' => show_package_information()
-        'init' => init_pkginfo_json()
+        'init' => init_pkginfo_json(manifest_format)
         'install' => install_packages(is_global)
         'remove' => remove_packages(_argv.unknown)
         'update' => update_packages()
