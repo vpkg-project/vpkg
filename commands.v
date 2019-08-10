@@ -6,9 +6,10 @@ import args
 
 fn init_pkginfo_json() {
     mut vpkg_json_contents := ['{', '\n']
+    pkg_name := os.dir(os.getwd())
 
-    vpkg_json_contents << '   "name": "${Version}",\n'
-    vpkg_json_contents << '   "version": "1.0"\n'
+    vpkg_json_contents << '   "name": "${pkg_name}",\n'
+    vpkg_json_contents << '   "version": "${Version}"\n'
     vpkg_json_contents << '   "author": ["Author Name <author@example.com>"],\n'
     vpkg_json_contents << '   "repo": "https://github.com/username/repo",\n'
     vpkg_json_contents << '   "dependencies": []\n'
