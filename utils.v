@@ -25,7 +25,9 @@ fn load_package_file() ?PkgInfo {
 }
 
 fn check_git_version(dir string) string {
-    version := os.exec('git --git-dir ${dir}/.git log --pretty=format:%H -n 1')
+    version := os.exec('git --git-dir ${dir}/.git log --pretty=format:%H -n 1') or {
+        return ''
+    }
 
     return version
 }

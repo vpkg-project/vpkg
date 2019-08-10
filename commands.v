@@ -151,6 +151,9 @@ fn show_help() {
     println('VPkg ${Version}')
     println('An alternative package manager for V.')
 
+    println('\nUSAGE\n')
+    println('vpkg <COMMAND> [ARGS...] [-g]')
+
     println('\nCOMMANDS\n')
 
     println('get [packages]                     Fetch and installs packages from the registry or the git repo.')

@@ -8,7 +8,32 @@ vpkg's approach is to incorporate the ideas taken from centralized and decentral
 - Packages stored from `registry.json` file can be obtained through a simple `vpkg get [package name]` while the rest uses regular Git URLs.
 - Support for multiple package manifests (`v.mod`, `.vpm.json`, and `.vpkg.json`).
 
-### TODO
+## Commands
+```
+VPkg 0.3
+An alternative package manager for V.
+
+USAGE
+
+vpkg <COMMAND> [ARGS...] [-g]
+
+COMMANDS
+
+get [packages]                     Fetch and installs packages from the registry or the git repo.
+help                               Prints this help message.
+info                               Show project's package information.
+init                               Create a ".vpkg.json" manifest file into the current directory.
+install                            Reads the ".vpkg.json" file and installs the necessary packages.
+remove [packages]                  Removes packages
+update                             Updates packages.
+version                            Prints the Version of this program.
+
+OPTIONS
+
+--global, -g                       Installs the modules/packages into the `.vmodules` folder.
+```
+
+## TODO
 - ability to publish and search packages in VPM and VPKG registry.
 - recursive installation of dependencies of packages.
 
