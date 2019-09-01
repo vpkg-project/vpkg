@@ -6,7 +6,7 @@ import (
 )
 
 const (
-    Version = '0.4'
+    Version = '0.4.1'
     GlobalModulesDir = '${os.home_dir()}/.vmodules'
 )
 
