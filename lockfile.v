@@ -64,14 +64,14 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
     mut contents := ['{', '   "version": "${lock.version}",', '   "packages": [']
 
     for i, pkg in lock.packages {
-        contents << '       {'
+        contents << '        {'
         contents << '           "name": "${pkg.name}",'
         contents << '           "version": "${pkg.version}"'
 
         if i != lock.packages.len-1 {
-            contents << '       },'
+            contents << '        },'
         } else {
-            contents << '       }'
+            contents << '        }'
         }
     }
 
