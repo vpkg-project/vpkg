@@ -8,7 +8,7 @@ fn check_git_version(dir string) string {
     }
 
     return version.output
-    }
+}
 
 fn delete_package_contents(path string) bool {
     mut folder_contents := os.ls(path)
@@ -75,6 +75,7 @@ fn is_git_url(a string) bool {
 
 fn print_status(packages []InstalledPackage, status_type string) {
     mut package_word := 'package'
+    mut desc_word := 'was'
 
     if status_type != 'removed' {
         for package in packages {
@@ -84,7 +85,8 @@ fn print_status(packages []InstalledPackage, status_type string) {
 
     if packages.len > 1 {
         package_word = 'packages'
+        desc_word = 'were'
     }
 
-    println('${packages.len} ${package_word} was ${status_type} successfully.')
+    println('${packages.len} ${package_word} ${desc_word} ${status_type} successfully.')
 }
