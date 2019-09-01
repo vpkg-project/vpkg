@@ -27,7 +27,7 @@ mut:
     version string
 }
 
-struct PkgInfo {
+struct PkgManifest {
     name string
     author []string
     version string
