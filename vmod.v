@@ -8,7 +8,7 @@ enum Lexeme {
     module_keyword lcbr rcbr labr comma rabr colon eof str name newline
 }
 
-struct VModPkgInfo {
+struct VModPkgManifest {
 mut:
     name string
     version string
@@ -36,7 +36,6 @@ fn new_scanner(vmod_path string) VModScanner {
 
     raw_vmod_contents := os.read_file(vmod_path) or {
         panic('cannot parse v.mod')
-        return VModScanner{}
     }
 
     scanner := VModScanner{
@@ -243,9 +242,9 @@ fn (s mut VModScanner) scan() Token {
     return tokenize(.eof, '')
 }
 
-fn (s mut VModScanner) parse() VModPkgInfo {
+fn (s mut VModScanner) parse() VModPkgManifest {
     mut tokens := []Token
-    mut pkg_info := VModPkgInfo{}
+    mut pkg_info := VModPkgManifest{}
 
     mut has_started := false
 
@@ -298,11 +297,11 @@ fn (s mut VModScanner) parse() VModPkgInfo {
     return pkg_info
 }
 
-pub fn open_vmod(vmod_path string) PkgInfo {
+pub fn open_vmod(vmod_path string) PkgManifest {
     mut sc := new_scanner(vmod_path)
     parsed := sc.parse()
 
-    return PkgInfo{
+    return PkgManifest{
         name: parsed.name,
         version: parsed.version,
         dependencies: parsed.deps
