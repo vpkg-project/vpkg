@@ -1,5 +1,15 @@
 module main
 
+struct Vpkg {
+pub mut:
+    command string
+    options map[string]string
+    unknown []string
+    dir string
+    manifest_file_path string
+    is_global bool
+}
+
 struct Registry {
     packages []Package
 }
