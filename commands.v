@@ -143,9 +143,19 @@ fn (vpkg mut Vpkg) show_package_information() {
     }
 
     println('Package name: ${pkg_info.name}@${pkg_info.version}')
+    
+    if pkg_info.repo.len != 0 {
+        println('Repository: ${pkg_info.repo}')
+    } 
+    
     println('\nDependencies:')
     for dependency in pkg_info.dependencies {
         println('- ' + dependency)
+    }
+
+    println('\nPackage sources:')
+    for source_url in pkg_info.sources {
+        println('- ' + source_url)
     }
 
     println('\nInstalled packages:')
