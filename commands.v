@@ -47,9 +47,7 @@ fn (vpkg mut Vpkg) create_manifest_file() {
 }
 
 fn (vpkg mut Vpkg) install_packages(dir string) {
-    pkg_info := vpkg.load_manifest_file() or {
-        return
-    }
+    pkg_info := vpkg.manifest
 
     println('Installing packages')
     packages := pkg_info.dependencies
@@ -138,10 +136,7 @@ fn (vpkg mut Vpkg) get_packages(packages []string) {
 }
 
 fn (vpkg mut Vpkg) show_package_information() {
-    pkg_info := vpkg.load_manifest_file() or {
-        return
-    }
-
+    pkg_info := vpkg.manifest
     lockfile := read_lockfile(vpkg.dir) or {
         create_lockfile(vpkg.dir)
         return

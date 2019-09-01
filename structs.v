@@ -7,6 +7,7 @@ pub mut:
     unknown []string
     dir string
     manifest_file_path string
+    manifest PkgManifest
     is_global bool
 }
 

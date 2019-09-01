@@ -13,7 +13,7 @@ const (
 fn new_vpkg(dir string) Vpkg {
     _argv := vargs.parse(os.args, 1)
 
-    return Vpkg{
+    mut instance := Vpkg{
         command: _argv.command, 
         options: _argv.options, 
         unknown: _argv.unknown, 
@@ -21,6 +21,10 @@ fn new_vpkg(dir string) Vpkg {
         manifest_file_path: get_manifest_file_path(dir),
         is_global: false
     }
+
+    instance.manifest = instance.load_manifest_file()
+
+    return instance
 }
 
 fn (vpkg mut Vpkg) run() {
