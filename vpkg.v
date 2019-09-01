@@ -6,10 +6,8 @@ import (
 )
 
 const (
-    Version = '0.3'
+    Version = '0.4'
     GlobalModulesDir = '${os.home_dir()}/.vmodules'
-    ModulesDir = '${os.getwd()}'
-    LockfilePath = '${os.getwd()}/.vpkg-lock.json'
 )
 
 fn search_from_vpm(name string) Package {
