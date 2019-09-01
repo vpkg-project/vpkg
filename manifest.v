@@ -6,18 +6,18 @@ import (
     json
 )
 
-fn (vpkg Vpkg) load_manifest_file() ?PkgManifest {
+fn (vpkg Vpkg) load_manifest_file() PkgManifest {
     manifest_file_path := vpkg.manifest_file_path
 
     if manifest_file_path.ends_with('v.mod') {
         return open_vmod(manifest_file_path)
     } else {
         manifest_file_contents := os.read_file(manifest_file_path) or {
-            return error('Can not read ${manifest_file_path}')
+            return PkgManifest{}
         }
 
         contents := json.decode(PkgManifest, manifest_file_contents) or {
-            return error('Cannot decode ${manifest_file_path}')
+            return PkgManifest{}
         }
 
         return contents
