@@ -36,6 +36,8 @@ OPTIONS
 ## TODO
 - ability to publish and search packages in VPM and VPKG registry.
 - recursive installation of dependencies of packages.
+- multiple custom sources for getting packages
+- unified logging interface
 
 ## Installation
 - Clone the repo.
