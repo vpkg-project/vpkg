@@ -1,9 +1,12 @@
 {
     "name": "vpkg",
-    "version": "0.1.0",
-    "author": ["Name <example@email.com>"],
+    "version": "0.4.1",
+    "author": ["Ned Palacios <npdoesmc@gmail.com>"],
     "repo": "https://github.com/nedpals/vpkg",
+    "sources": [
+        "https://v-pkg.github.io/registry/"
+    ],
     "dependencies": [
-        "https://github.com/nedpals/v-args.git"
+        "https://github.com/nedpals/vargs.git"
     ]
 }
