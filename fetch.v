@@ -73,10 +73,10 @@ fn (vpkg mut Vpkg) get_package(name string) InstalledPackage {
     if (exists_on_vlib && vpkg.is_global) || exists_on_cwd {
         installed_path := '${module_install_path}/${pkg_name}'
 
-        println('${name} is already installed.')
+        println('${pkg_name} is already installed.')
         
         data = InstalledPackage{
-            name: name,
+            name: pkg_name,
             path: '${module_install_path}/${pkg_name}',
             version: check_git_version(installed_path)
         }
