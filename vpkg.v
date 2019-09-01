@@ -1,10 +1,9 @@
 module main
 
-import args
-import os
-import http
-import json
-import term
+import (
+    vargs
+    os
+)
 
 const (
     Version = '0.3'

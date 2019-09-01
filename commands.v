@@ -1,8 +1,10 @@
 module main
 
-import os
-import term
-import args
+import (
+    os
+    term
+    vargs
+)
 
 fn init_pkginfo_json(mode string) {
     pkg_name := os.filename(os.getwd())
