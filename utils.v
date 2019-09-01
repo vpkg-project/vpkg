@@ -53,12 +53,12 @@ fn package_name(name string) string {
     return pkg_name
 }
 
-fn create_modules_dir() string {
-    if os.dir_exists(ModulesDir) {
-        os.mkdir(ModulesDir)
+fn (vpkg Vpkg) create_modules_dir() string {
+    if os.dir_exists(vpkg.dir) {
+        os.mkdir(vpkg.dir)
     }
 
-    return ModulesDir
+    return vpkg.dir
 }
 
 fn is_git_url(a string) bool {
