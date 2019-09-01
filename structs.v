@@ -32,6 +32,7 @@ struct PkgManifest {
     name string
     author []string
     version string
+    sources []string
     repo string
     dependencies []string
 }

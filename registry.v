@@ -24,9 +24,9 @@ fn search_from_vpm(name string) Package {
     }
 }
 
-fn search_from_registry(name string) Package {
-    resp := http.get('https://v-pkg.github.io/registry/registry.json') or {
-        eprintln('Cannot fetch from registry server')
+fn search_from_registry(name string, url string) Package {
+    resp := http.get(url + '/registry.json') or {
+        eprintln('Cannot fetch from ${url}')
         return Package{}
     }
 

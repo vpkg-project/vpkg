@@ -1,15 +1,35 @@
 module main
 
-import os
+import (
+    os
+    net.urllib as urllib
+)
 
-fn fetch_from_registry(name string, install_location string, global bool) InstalledPackage {
+fn fetch_from_registry(name string, install_location string, global bool, sources []string) InstalledPackage {
     mut pkg := Package{}
     mut dl_pkg := InstalledPackage{}
 
-    pkg = search_from_vpm(name)
+    for registry_url in sources {
+        if registry_url == 'vpm' {
+            println('Fetching package from ${registry_url}...')
+        } else {
+            url := urllib.parse(registry_url) or {
+                return dl_pkg
+            }
+            println('Fetching package from ${url.host}...')
+        }
 
-    if pkg.name.len == 0 {
-        pkg = search_from_registry(name)
+        pkg = if registry_url == 'vpm' { 
+            search_from_vpm(name)
+        } else { 
+            search_from_registry(name, registry_url)
+        }
+
+        if pkg.name.len == 0 {
+            continue
+        } else {
+            break
+        }
     }
 
     if pkg.method == 'git' {
@@ -64,7 +84,14 @@ fn (vpkg mut Vpkg) get_package(name string) InstalledPackage {
         if is_git_url(name) {
             data = fetch_from_git(name, install_location, vpkg.is_global)
         } else {
-            data = fetch_from_registry(name, install_location, vpkg.is_global)
+            use_builtin := 'use-builtin' in vpkg.options
+            mut sources := vpkg.manifest.sources
+
+            if !use_builtin || vpkg.options['use-builtin'] != 'false' {
+                sources << ['vpm', 'https://v-pkg.github.io/registry/']
+            }
+
+            data = fetch_from_registry(name, install_location, vpkg.is_global, sources)
         }
 
         if data.name.len == 0 {
