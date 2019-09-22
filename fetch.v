@@ -75,7 +75,7 @@ fn (vpkg mut Vpkg) get_package(name string) InstalledPackage {
 
     mut data := InstalledPackage{}
 
-    if (exists_on_vlib && vpkg.is_global) || exists_on_cwd {
+    if (exists_on_vlib && vpkg.is_global) || (exists_on_cwd && !('force' in vpkg.options)) {
         installed_path := '${module_install_path}/${pkg_name}'
 
         println('${pkg_name} is already installed.')
