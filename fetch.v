@@ -64,7 +64,7 @@ fn fetch_from_git(path string, install_location string, global bool) InstalledPa
     }
 }
 
-fn (vpkg mut Vpkg) get_package(name string) InstalledPackage {
+fn (vpkg Vpkg) get_package(name string) InstalledPackage {
     pkg_name := package_name(name)
 
     println('Fetching ${pkg_name}')

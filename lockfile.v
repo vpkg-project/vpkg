@@ -17,7 +17,7 @@ fn read_lockfile(dir string) ?Lockfile {
     return decoded
 }
 
-fn (lock mut Lockfile) find_package(name string) int {
+fn (lock Lockfile) find_package(name string) int {
     for idx, package in lock.packages {
         if package.name == name {
             return idx

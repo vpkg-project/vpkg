@@ -12,7 +12,7 @@ fn (vpkg Vpkg) migrate_manifest() {
     migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
 }
 
-fn (vpkg mut Vpkg) create_manifest_file() {
+fn (vpkg Vpkg) create_manifest_file() {
     pkg_name := os.filename(vpkg.dir)
     
     mut pkg_manifest_contents := []string
@@ -52,7 +52,7 @@ fn (vpkg mut Vpkg) create_manifest_file() {
     println('Package manifest file was created successfully.')
 }
 
-fn (vpkg mut Vpkg) install_packages(dir string) {
+fn (vpkg Vpkg) install_packages(dir string) {
     pkg_info := vpkg.manifest
 
     println('Installing packages')
@@ -61,7 +61,7 @@ fn (vpkg mut Vpkg) install_packages(dir string) {
     vpkg.get_packages(packages)
 }
 
-fn (vpkg mut Vpkg) remove_packages(packages []string) {
+fn (vpkg Vpkg) remove_packages(packages []string) {
     mut removed_packages := []InstalledPackage
     mut lockfile := read_lockfile(vpkg.dir) or {
         println(err)
@@ -83,7 +83,7 @@ fn (vpkg mut Vpkg) remove_packages(packages []string) {
     print_status(removed_packages, 'removed')
 }
 
-fn (vpkg mut Vpkg) update_packages() {    
+fn (vpkg Vpkg) update_packages() {    
     mut updated_packages := []InstalledPackage
 
     println('Fetching lockfile')
@@ -121,7 +121,7 @@ fn (vpkg mut Vpkg) update_packages() {
     print_status(updated_packages, 'updated')
 }
 
-fn (vpkg mut Vpkg) get_packages(packages []string) {
+fn (vpkg Vpkg) get_packages(packages []string) {
     mut installed_packages := []InstalledPackage
     mut lockfile := read_lockfile(vpkg.dir) or {
         println(err)
@@ -141,7 +141,7 @@ fn (vpkg mut Vpkg) get_packages(packages []string) {
     print_status(installed_packages, 'installed')
 }
 
-fn (vpkg mut Vpkg) show_package_information() {
+fn (vpkg Vpkg) show_package_information() {
     pkg_info := vpkg.manifest
     lockfile := read_lockfile(vpkg.dir) or {
         create_lockfile(vpkg.dir)
@@ -171,13 +171,13 @@ fn (vpkg mut Vpkg) show_package_information() {
     }
 }
 
-fn (vpkg mut Vpkg) show_version() {
+fn (vpkg Vpkg) show_version() {
     println('VPkg ${Version} for ${os.user_os()}')
     println('Repo: https://github.com/v-pkg/vpkg \n')
     println('2019 (c) Ned Palacios and it\'s contributors.')
 }
 
-fn (vpkg mut Vpkg) show_help() {
+fn (vpkg Vpkg) show_help() {
     println('VPkg ${Version}')
     println('An alternative package manager for V.')
 
