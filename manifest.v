@@ -6,8 +6,8 @@ import (
     json
 )
 
-fn (vpkg Vpkg) load_manifest_file() PkgManifest {
-    manifest_file_path := vpkg.manifest_file_path
+fn load_manifest_file(dir string) PkgManifest {
+    manifest_file_path := get_manifest_file_path(dir)
 
     if manifest_file_path.ends_with('v.mod') {
         return open_vmod(manifest_file_path)

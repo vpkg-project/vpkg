@@ -22,7 +22,7 @@ fn new_vpkg(dir string) Vpkg {
         is_global: false
     }
 
-    instance.manifest = instance.load_manifest_file()
+    instance.manifest = load_manifest_file(instance.dir)
 
     return instance
 }
