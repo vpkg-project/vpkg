@@ -85,7 +85,7 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
 fn create_lockfile(dir string) Lockfile {
     lockfile_json_arr := ['{', '   "version": "${Version}",', '   "packages": []', '}']
 
-    lockfile := os.create(dir) or {
+    lockfile := os.create(dir + '/.vpkg-lock.json') or {
         return Lockfile{Version, []InstalledPackage}
     }
 
