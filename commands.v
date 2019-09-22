@@ -87,11 +87,7 @@ fn (vpkg Vpkg) update_packages() {
     mut updated_packages := []InstalledPackage
 
     println('Fetching lockfile')
-    mut lockfile := read_lockfile(vpkg.dir) or {
-        println(err)
-        create_lockfile(vpkg.dir)
-        return
-    }
+    mut lockfile := read_lockfile(vpkg.dir) or { return }
 
     println('Updating packages')
 
@@ -123,11 +119,7 @@ fn (vpkg Vpkg) update_packages() {
 
 fn (vpkg Vpkg) get_packages(packages []string) {
     mut installed_packages := []InstalledPackage
-    mut lockfile := read_lockfile(vpkg.dir) or {
-        println(err)
-        create_lockfile(vpkg.dir)
-        return
-    }
+    mut lockfile := read_lockfile(vpkg.dir) or { return }
 
     for i := 0; i < packages.len; i++ {
         package := vpkg.get_package(packages[i])
@@ -144,7 +136,6 @@ fn (vpkg Vpkg) get_packages(packages []string) {
 fn (vpkg Vpkg) show_package_information() {
     pkg_info := vpkg.manifest
     lockfile := read_lockfile(vpkg.dir) or {
-        create_lockfile(vpkg.dir)
         return
     }
 

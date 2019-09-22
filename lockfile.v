@@ -6,15 +6,22 @@ import (
 )
 
 fn read_lockfile(dir string) ?Lockfile {
-    contents := os.read_file(dir + '/.vpkg-lock.json') or {
-        return error('Cannot read ${dir}')
-    }
+    lockfile_path := dir + '/.vpkg-lock.json'
 
-    decoded := json.decode(Lockfile, contents) or {
-        return error('Unable to decode lockfile.')
-    }
+    if os.file_exists(lockfile_path) {
+        contents := os.read_file(lockfile_path) or {
+            return error('Cannot read ${dir}')
+        }
 
-    return decoded
+        decoded := json.decode(Lockfile, contents) or {
+            return error('Unable to decode lockfile.')
+        }
+
+        return decoded
+    } else {
+        create_lockfile(dir)
+        return read_lockfile(dir)
+    }
 }
 
 fn (lock Lockfile) find_package(name string) int {
