@@ -90,11 +90,13 @@ fn (vpkg mut Vpkg) get_package(name string) InstalledPackage {
             data = fetch_from_git(name, install_location, vpkg.is_global)
         } else {
             use_builtin := 'use-builtin' in vpkg.options
-            mut sources := vpkg.manifest.sources
+            mut sources := []string
 
             if !use_builtin || vpkg.options['use-builtin'] != 'false' {
                 sources << ['vpm', 'https://v-pkg.github.io/registry/']
             }
+
+            sources << vpkg.manifest.sources
 
             data = fetch_from_registry(name, install_location, vpkg.is_global, sources)
         }
