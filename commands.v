@@ -21,7 +21,7 @@ fn (vpkg Vpkg) create_manifest_file() {
     switch vpkg.options['format'] {
         case 'vpkg':
             pkg_manifest_contents << '{\n   "name": "${pkg_name}",'
-            pkg_manifest_contents << '   "version": "1.0"'
+            pkg_manifest_contents << '   "version": "1.0",'
             pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],'
             pkg_manifest_contents << '   "repo": "https://github.com/username/repo",'
             pkg_manifest_contents << '   "dependencies": []'
@@ -29,12 +29,12 @@ fn (vpkg Vpkg) create_manifest_file() {
         case 'vmod':
             manifest_filename = 'v.mod'
             pkg_manifest_contents << 'Module {\n   name: \'${pkg_name}\','
-            pkg_manifest_contents << '   version: \'1.0\''
+            pkg_manifest_contents << '   version: \'1.0\','
             pkg_manifest_contents << '   dependencies: []'
             pkg_manifest_contents << '}' 
         default:
             pkg_manifest_contents << '{\n   "name": "${pkg_name}",'
-            pkg_manifest_contents << '   "version": "1.0"'
+            pkg_manifest_contents << '   "version": "1.0",'
             pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],'
             pkg_manifest_contents << '   "repo": "https://github.com/username/repo",'
             pkg_manifest_contents << '   "dependencies": []'
