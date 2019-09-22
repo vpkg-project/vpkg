@@ -43,14 +43,19 @@ fn fetch_from_git(path string, install_location string, global bool) InstalledPa
     pkg_name := package_name(path)
     dir_name := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     branch := if path.all_after('#') != path { path.all_after('#') } else { 'master' }
+    clone_url := path.all_before('#')
     clone_dir := '${install_location}/${dir_name}'
 
-    cmd_output := os.exec('git clone ${path} ${clone_dir} --branch ${branch} --depth 1') or {
+    if os.dir_exists(clone_dir) {
+        delete_package_contents(clone_dir)
+    }
+
+    git_clone := os.exec('git clone ${clone_url} ${clone_dir} --branch ${branch} --quiet --depth 1') or {
         eprintln('Git clone error')
         return InstalledPackage{}
     }
 
-    println(cmd_output.output)
+    println(git_clone.output)
 
     return InstalledPackage{
         name: pkg_name,
