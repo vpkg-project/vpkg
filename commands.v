@@ -148,6 +148,7 @@ fn (vpkg Vpkg) show_package_information() {
         return
     }
 
+    println('Manifest path: ${vpkg.manifest_file_path}')
     println('Package name: ${pkg_info.name}@${pkg_info.version}')
     
     if pkg_info.repo.len != 0 {
