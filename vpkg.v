@@ -43,6 +43,14 @@ fn (vpkg mut Vpkg) run() {
             vpkg.install_packages(vpkg.dir)
         case 'remove':
             vpkg.remove_packages(vpkg.unknown)
+        case 'migrate':
+            if vpkg.unknown[0] == 'manifest' {
+                vpkg.migrate_manifest()
+            } else {
+                vpkg.show_help()
+            }
+        case 'update':
+            vpkg.update_packages()
         case 'version':
             vpkg.show_version()
         default:

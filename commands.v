@@ -186,14 +186,15 @@ fn (vpkg mut Vpkg) show_help() {
 
     println('\nCOMMANDS\n')
 
-    println('get [packages]                     Fetch and installs packages from the registry or the git repo.')
-    println('help                               Prints this help message.')
-    println('info                               Show project\'s package information.')
-    println('init [--format=vpkg|vmod]          Creates a package manifest file into the current directory. Defaults to "vpkg".')
-    println('install                            Reads the package manifest file and installs the necessary packages.')
-    println('remove [packages]                  Removes packages')
-    println('update                             Updates packages.')
-    println('version                            Prints the Version of this program.')
+    println('get [packages]                             Fetch and installs packages from the registry or the git repo.')
+    println('help                                       Prints this help message.')
+    println('info                                       Show project\'s package information.')
+    println('init [--format=vpkg|vmod]                  Creates a package manifest file into the current directory. Defaults to "vpkg".')
+    println('install                                    Reads the package manifest file and installs the necessary packages.')
+    println('migrate manifest [--format=vpkg|vmod]      Migrate manifest file to a specified format.')
+    println('remove [packages]                          Removes packages')
+    println('update                                     Updates packages.')
+    println('version                                    Prints the Version of this program.')
 
     println('\nOPTIONS\n')
     println('--global, -g                       Installs the modules/packages into the `.vmodules` folder.')
