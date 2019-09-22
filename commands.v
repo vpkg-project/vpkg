@@ -16,7 +16,7 @@ fn (vpkg Vpkg) create_manifest_file() {
     pkg_name := os.filename(vpkg.dir)
     
     mut pkg_manifest_contents := []string
-    mut manifest_filename := '.vpkg.json'
+    mut manifest_filename := 'vpkg.json'
 
     switch vpkg.options['format'] {
         case 'vpkg':
