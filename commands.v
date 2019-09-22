@@ -6,6 +6,12 @@ import (
     vargs
 )
 
+fn (vpkg Vpkg) migrate_manifest() {
+    m_type := if 'format' in vpkg.options { vpkg.options['format'] } else { 'vpkg' }
+
+    migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
+}
+
 fn (vpkg mut Vpkg) create_manifest_file() {
     pkg_name := os.filename(vpkg.dir)
     

@@ -39,7 +39,99 @@ fn get_manifest_file_path(dir string) string {
 
     return ''
 }
+
+fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
+    filepath := get_manifest_file_path(dir)
+
+    match format {
+        'vmod' => {manifest_to_vmod(manifest, dir)}
+        'vpkg' => {manifest_to_vpkg(manifest, dir)}
     }
 
-    return ''
+    if filepath.ends_with('.vpkg.json') && format == 'vpkg' {
+        $if windows {
+            os.mv(filepath, dir + '\\vpkg.json')
+        } $else {
+            os.mv(filepath, dir + '/vpkg.json')
+        }
+    } 
+}
+
+fn (manifest PkgManifest) to_vmod() string {
+    mut vmod_contents := ['Module {\n']
+    vmod_contents << '   name: \'${manifest.name}\'\n'
+    vmod_contents << '   version: \'${manifest.version}\'\n'
+    vmod_contents << '   deps: ['
+
+    for i, dep in manifest.dependencies {
+        vmod_contents << '\'${dep}\''
+
+        if i != 0 && i != manifest.dependencies.len {
+            vmod_contents << ','
+        }
+    }
+
+    vmod_contents << ']\n'
+    vmod_contents << '}'
+
+    return vmod_contents.join('')
+}
+
+fn (manifest PkgManifest) to_vpkg_json() string {
+    mut vpkg_json_contents := []string
+
+    vpkg_json_contents << '{\n    "name": "${manifest.name}",\n'
+    vpkg_json_contents << '    "version": "${manifest.version}",\n'
+    vpkg_json_contents << '    "author": [\n'
+    
+    for i, author in manifest.author {
+        vpkg_json_contents << '        "${author}"'
+
+        if i != 0 && i != manifest.author.len {
+            vpkg_json_contents << ','
+        }
+        
+        vpkg_json_contents << '\n'
+    }
+
+    vpkg_json_contents << '    ],\n'
+
+    vpkg_json_contents << '    "repo": "${manifest.repo}",\n'
+    vpkg_json_contents << '    "dependencies": [\n'
+
+    for i, dep in manifest.dependencies {
+        vpkg_json_contents << '        "${dep}"'
+
+        if i != 0 && i != manifest.dependencies.len {
+            vpkg_json_contents << ','
+        }
+
+        vpkg_json_contents << '\n'
+    }
+    vpkg_json_contents << '    ]\n'
+    vpkg_json_contents << '}' 
+
+    return vpkg_json_contents.join('')
+}
+
+fn manifest_to_vmod(manifest PkgManifest, dir string) {
+    vmod_file := os.create(dir + '/v.mod') or {
+        return
+    }
+
+    vmod_contents_str := manifest.to_vmod()
+
+    vmod_file.write(vmod_contents_str)
+    defer { vmod_file.close() }
+}
+
+fn manifest_to_vpkg(manifest PkgManifest, dir string) {
+    vpkg_file := os.create(dir + '/vpkg.json') or {
+        return
+    }
+
+    vpkg_contents_str := manifest.to_vpkg_json()
+
+    vpkg_file.write(vpkg_contents_str)
+    defer { vpkg_file.close() }
 }
