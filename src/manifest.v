@@ -77,7 +77,9 @@ fn (manifest PkgManifest) to_vmod() string {
     vmod_contents << '   deps: ['
 
     for i, dep in manifest.dependencies {
-        vmod_contents << '\'${convert_to_vpm(dep)}\''
+        depp := if is_git_url(dep) { convert_to_vpm(dep) } else { dep }
+
+        vmod_contents << '\'${depp}\''
 
         if i != 0 && i != manifest.dependencies.len {
             vmod_contents << ','
