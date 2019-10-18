@@ -38,13 +38,15 @@ fn sanitize_package_name(name string) string {
     illegal_chars := ['-']
     mut name_array := name.split('')
 
-    for i := 0; i < name_array; i++ {
+    for i := 0; i < name_array.len; i++ {
         current := name_array[i]
 
         if illegal_chars.index(current) != -1 {
             name_array[i] = '_'
         }
     }
+
+    return name_array.join('')
 }
 
 fn package_name(name string) string {

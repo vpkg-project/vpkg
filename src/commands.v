@@ -1,10 +1,6 @@
 module main
 
-import (
-    os
-    term
-    vargs
-)
+import os
 
 fn (vpkg Vpkg) migrate_manifest() {
     m_type := if 'format' in vpkg.options { vpkg.options['format'] } else { 'vpkg' }

@@ -2,7 +2,6 @@ module main
 
 import (
     os
-    term
     json
 )
 
