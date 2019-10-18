@@ -6,7 +6,7 @@ vpkg's approach is to incorporate the ideas taken from centralized and decentral
 - Centralized, popular packages are being listed on [VPM](https://vpm.vlang.io) and on to a single [`registry.json`](https://github.com/v-pkg/registry/tree/master/registry.json) file.
 - Uses a single, JSON file for storing package information as well as it's dependencies. (In this case, [`vpkg.json`](vpkg.json))
 - Packages stored from `registry.json` file can be obtained through a simple `vpkg get [package name]` while the rest uses regular Git URLs.
-- Support for multiple package manifests (`v.mod`, `.vpm.json`, and `.vpkg.json`).
+- Support for multiple package manifests (`v.mod`, and `vpkg.json`).
 - Support for custom package registries/sources.
 
 
