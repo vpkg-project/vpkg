@@ -32,6 +32,10 @@ fn get_manifest_file_path(dir string) string {
         return '${dir}/.vpkg.json'
     }
 
+    if os.file_exists('${dir}/vpkg.json') {
+        return '${dir}/vpkg.json'
+    }
+
     if os.file_exists('${dir}/.vpm.json') {
         return '${dir}/.vpm.json'
     }
