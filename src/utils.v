@@ -57,7 +57,7 @@ fn package_name(name string) string {
         pkg_name = os.filename(name)
     }
 
-    if is_git && name.contains('.git') {
+    if name.contains('.git') {
         pkg_name = pkg_name.replace('.git', '')
     }
 
