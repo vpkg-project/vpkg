@@ -10,8 +10,8 @@ const (
     GlobalModulesDir = '${os.home_dir()}/.vmodules'
 )
 
-fn new_vpkg(dir string) Vpkg {
-    _argv := vargs.parse(os.args, 1)
+fn new_vpkg(dir string, args []string) Vpkg {
+    _argv := vargs.parse(args, 0)
 
     mut instance := Vpkg{
         command: _argv.command, 
@@ -59,7 +59,9 @@ fn (vpkg mut Vpkg) run() {
 }
 
 fn main() {
-    mut app := new_vpkg(os.getwd())
+    _args := os.args
+
+    mut app := new_vpkg(os.getwd(), _args.slice(1, _args.len))
     
     app.run()
 }
