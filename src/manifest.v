@@ -60,6 +60,16 @@ fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
     } 
 }
 
+fn convert_to_vpm(name string) string {
+    name_array := name.split('/')
+    mut vpm_pkg_name_array := []string
+
+    vpm_pkg_name_array << package_name(name_array[2])
+    vpm_pkg_name_array << package_name(name_array[3])
+
+    return vpm_pkg_name_array.join('.')
+}
+
 fn (manifest PkgManifest) to_vmod() string {
     mut vmod_contents := ['Module {\n']
     vmod_contents << '   name: \'${manifest.name}\'\n'
@@ -67,7 +77,7 @@ fn (manifest PkgManifest) to_vmod() string {
     vmod_contents << '   deps: ['
 
     for i, dep in manifest.dependencies {
-        vmod_contents << '\'${dep}\''
+        vmod_contents << '\'${convert_to_vpm(dep)}\''
 
         if i != 0 && i != manifest.dependencies.len {
             vmod_contents << ','
