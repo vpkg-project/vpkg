@@ -164,13 +164,13 @@ fn (vpkg Vpkg) show_package_information() {
 }
 
 fn (vpkg Vpkg) show_version() {
-    println('VPkg ${Version} for ${os.user_os()}')
+    println('vpkg ${Version} for ${os.user_os()}')
     println('Repo: https://github.com/v-pkg/vpkg \n')
     println('2019 (c) Ned Palacios and it\'s contributors.')
 }
 
 fn (vpkg Vpkg) show_help() {
-    println('VPkg ${Version}')
+    println('vpkg ${Version}')
     println('An alternative package manager for V.')
 
     println('\nUSAGE\n')
@@ -186,7 +186,7 @@ fn (vpkg Vpkg) show_help() {
     println('migrate manifest [--format=vpkg|vmod]      Migrate manifest file to a specified format.')
     println('remove [packages]                          Removes packages')
     println('update                                     Updates packages.')
-    println('version                                    Prints the Version of this program.')
+    println('version                                    Prints the version of this program.')
 
     println('\nOPTIONS\n')
     println('--global, -g                               Installs the modules/packages into the `.vmodules` folder.')
