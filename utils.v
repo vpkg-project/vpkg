@@ -34,6 +34,19 @@ fn delete_package_contents(path string) bool {
     }
 }
 
+fn sanitize_package_name(name string) string {
+    illegal_chars := ['-']
+    mut name_array := name.split('')
+
+    for i := 0; i < name_array; i++ {
+        current := name_array[i]
+
+        if illegal_chars.index(current) != -1 {
+            name_array[i] = '_'
+        }
+    }
+}
+
 fn package_name(name string) string {
     is_git := is_git_url(name)
     mut pkg_name := name
@@ -50,7 +63,7 @@ fn package_name(name string) string {
         pkg_name = pkg_name.all_after('v-')
     }
 
-    return pkg_name
+    return sanitize_package_name(pkg_name)
 }
 
 fn (vpkg Vpkg) create_modules_dir() string {
