@@ -1,6 +1,6 @@
 // some of the code snippets taken from: https://github.com/vlang/v/blob/mtokenser/compiler/scanner.v
 
-module main
+module api
 
 import os
 
@@ -133,25 +133,16 @@ fn get_array_contents(tokens []Token, start_pos int) []string {
 fn token_type(t_type Lexeme) string {
     mut token_type := 'name'
 
-    switch t_type {
-        case Lexeme.module_keyword:
-            token_type = 'module_keyword'
-        case Lexeme.lcbr:
-            token_type = 'lcbr'
-        case Lexeme.rcbr:
-            token_type = 'rcbr'
-        case Lexeme.labr:
-            token_type = 'labr'
-        case Lexeme.rabr:
-            token_type = 'rabr'
-        case Lexeme.colon:
-            token_type = 'colon'
-        case Lexeme.eof:
-            token_type = 'eof'
-        case Lexeme.str:
-            token_type = 'str'
-        case Lexeme.name:
-            token_type = 'name'
+    match t_type {
+        .module_keyword { token_type = 'module_keyword' }
+        .lcbr { token_type = 'lcbr' }
+        .rcbr { token_type = 'rcbr' }
+        .labr { token_type = 'labr' }
+        .rabr { token_type = 'rabr' }
+        .colon { token_type = 'colon' }
+        .eof { token_type = 'eof' }
+        .str { token_type = 'str' }
+        .name { token_type = 'name' }
     }
 
     return token_type
@@ -203,11 +194,12 @@ fn (s mut VModScanner) scan() Token {
         }
     }
 
-    switch char {
-        case `{`:
+    match char {
+        `{` {
             if s.inside_text { return s.scan() }
             return tokenize(.lcbr, '')
-        case `}`:
+        }
+        `}` {
             if s.inside_text {
                 s.pos++
 
@@ -220,23 +212,19 @@ fn (s mut VModScanner) scan() Token {
             else {
                 return tokenize(.rcbr, '')
             }
-        case `\'`:
-            return tokenize(.str, s.create_string())
-        case `[`:
-            return tokenize(.labr, '')
-        case `]`:
-            return tokenize(.rabr, '')
-        case `,`:
-            return tokenize(.comma, '')
-        case `\r`:
+        }
+        `\'` { return tokenize(.str, s.create_string()) }
+        `[` { return tokenize(.labr, '') }
+        `]` { return tokenize(.rabr, '') }
+        `,` { return tokenize(.comma, '') }
+        `\r` {
             if next_char == `\n` {
                 s.pos++
                 return tokenize(.newline, '')
             }
-        case `\n`:
-            return tokenize(.newline, '')
-        case `:`:
-            return tokenize(.colon, '')
+        }
+        `\n` { return tokenize(.newline, '') }
+        `:` { return tokenize(.colon, '') }
     }
 
     return tokenize(.eof, '')
@@ -273,18 +261,15 @@ fn (s mut VModScanner) parse() VModPkgManifest {
             if token_type(next_next.@type) == 'str' {
                 value := next_next.val
 
-                switch current_tokens.val {
-                    case 'name':
-                        pkg_info.name = value
-                    case 'version':
-                        pkg_info.version = value
+                match current_tokens.val {
+                    'name' { pkg_info.name = value }
+                    'version' { pkg_info.version = value }
                 }
             }
 
             if token_type(next_next.@type) == 'labr' {
-                switch current_tokens.val {
-                    case 'deps':
-                        pkg_info.deps = get_array_contents(tokens, i+2)
+                match current_tokens.val {
+                    'deps' { pkg_info.deps = get_array_contents(tokens, i+2) }
                 }
             }
         }

@@ -1,4 +1,4 @@
-module main
+module api
 
 import (
     os
@@ -64,7 +64,7 @@ fn fetch_from_git(path string, install_location string, global bool) InstalledPa
     }
 }
 
-fn (vpkg Vpkg) get_package(name string) InstalledPackage {
+pub fn (vpkg Vpkg) get_package(name string) InstalledPackage {
     pkg_name := package_name(name)
 
     println('Fetching ${pkg_name}')

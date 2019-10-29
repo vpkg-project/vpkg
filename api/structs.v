@@ -1,6 +1,6 @@
-module main
+module api
 
-struct Vpkg {
+pub struct Vpkg {
 pub mut:
     command string
     options map[string]string

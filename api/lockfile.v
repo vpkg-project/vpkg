@@ -1,4 +1,4 @@
-module main
+module api
 
 import (
     os
@@ -86,7 +86,6 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
     contents << '}'
 
     os.write_file(dir + '/.vpkg-lock.json', contents.join('\n'))
-    contents.free()
 }
 
 fn create_lockfile(dir string) Lockfile {

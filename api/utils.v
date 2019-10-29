@@ -1,4 +1,4 @@
-module main
+module api
 
 import os
 
@@ -11,7 +11,7 @@ fn check_git_version(dir string) string {
 }
 
 fn delete_package_contents(path string) bool {
-    mut folder_contents := os.ls(path)
+    folder_contents := os.ls(path) or { return false }
 
     for filename in folder_contents {
         filepath := '${path}/${filename}'
@@ -23,9 +23,9 @@ fn delete_package_contents(path string) bool {
         }
     }
 
-    folder_contents = os.ls(path)
+    new_folder_contents := os.ls(path) or { return false }
 
-    if folder_contents.len == 0 {
+    if new_folder_contents.len == 0 {
         os.rmdir(path)
 
         return true
@@ -68,7 +68,7 @@ fn package_name(name string) string {
     return sanitize_package_name(pkg_name)
 }
 
-fn (vpkg Vpkg) create_modules_dir() string {
+pub fn (vpkg Vpkg) create_modules_dir() string {
     if os.dir_exists(vpkg.dir) {
         os.mkdir(vpkg.dir)
     }

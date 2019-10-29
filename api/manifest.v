@@ -1,4 +1,4 @@
-module main
+module api
 
 import (
     os
@@ -47,8 +47,8 @@ fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
     filepath := get_manifest_file_path(dir)
 
     match format {
-        'vmod' => {manifest_to_vmod(manifest, dir)}
-        'vpkg' => {manifest_to_vpkg(manifest, dir)}
+        'vmod' {manifest_to_vmod(manifest, dir)}
+        'vpkg' {manifest_to_vpkg(manifest, dir)}
     }
 
     if filepath.ends_with('.vpkg.json') && format == 'vpkg' {

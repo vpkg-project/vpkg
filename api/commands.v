@@ -1,40 +1,43 @@
-module main
+module api
 
 import os
 
-fn (vpkg Vpkg) migrate_manifest() {
+pub fn (vpkg Vpkg) migrate_manifest() {
     m_type := if 'format' in vpkg.options { vpkg.options['format'] } else { 'vpkg' }
 
     migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
 }
 
-fn (vpkg Vpkg) create_manifest_file() {
+pub fn (vpkg Vpkg) create_manifest_file() {
     pkg_name := os.filename(vpkg.dir)
     
     mut pkg_manifest_contents := []string
     mut manifest_filename := 'vpkg.json'
 
-    switch vpkg.options['format'] {
-        case 'vpkg':
+    match vpkg.options['format'] {
+        'vpkg' {
             pkg_manifest_contents << '{\n   "name": "${pkg_name}",'
             pkg_manifest_contents << '   "version": "1.0",'
             pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],'
             pkg_manifest_contents << '   "repo": "https://github.com/username/repo",'
             pkg_manifest_contents << '   "dependencies": []'
             pkg_manifest_contents << '}' 
-        case 'vmod':
+        }
+        'vmod' {
             manifest_filename = 'v.mod'
             pkg_manifest_contents << 'Module {\n   name: \'${pkg_name}\','
             pkg_manifest_contents << '   version: \'1.0\','
             pkg_manifest_contents << '   dependencies: []'
             pkg_manifest_contents << '}' 
-        default:
+        }
+        else {
             pkg_manifest_contents << '{\n   "name": "${pkg_name}",'
             pkg_manifest_contents << '   "version": "1.0",'
             pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],'
             pkg_manifest_contents << '   "repo": "https://github.com/username/repo",'
             pkg_manifest_contents << '   "dependencies": []'
             pkg_manifest_contents << '}' 
+        }
     }
 
     manifest_data := os.create('${vpkg.dir}/${manifest_filename}') or {
@@ -48,7 +51,7 @@ fn (vpkg Vpkg) create_manifest_file() {
     println('Package manifest file was created successfully.')
 }
 
-fn (vpkg Vpkg) install_packages(dir string) {
+pub fn (vpkg Vpkg) install_packages(dir string) {
     pkg_info := vpkg.manifest
 
     println('Installing packages')
@@ -57,7 +60,7 @@ fn (vpkg Vpkg) install_packages(dir string) {
     vpkg.get_packages(packages)
 }
 
-fn (vpkg Vpkg) remove_packages(packages []string) {
+pub fn (vpkg Vpkg) remove_packages(packages []string) {
     mut removed_packages := []InstalledPackage
     mut lockfile := read_lockfile(vpkg.dir) or {
         println(err)
@@ -79,7 +82,7 @@ fn (vpkg Vpkg) remove_packages(packages []string) {
     print_status(removed_packages, 'removed')
 }
 
-fn (vpkg Vpkg) update_packages() {    
+pub fn (vpkg Vpkg) update_packages() {    
     mut updated_packages := []InstalledPackage
 
     println('Fetching lockfile')
@@ -113,7 +116,7 @@ fn (vpkg Vpkg) update_packages() {
     print_status(updated_packages, 'updated')
 }
 
-fn (vpkg Vpkg) get_packages(packages []string) {
+pub fn (vpkg Vpkg) get_packages(packages []string) {
     mut installed_packages := []InstalledPackage
     mut lockfile := read_lockfile(vpkg.dir) or { return }
 
@@ -129,7 +132,7 @@ fn (vpkg Vpkg) get_packages(packages []string) {
     print_status(installed_packages, 'installed')
 }
 
-fn (vpkg Vpkg) show_package_information() {
+pub fn (vpkg Vpkg) show_package_information() {
     pkg_info := vpkg.manifest
     lockfile := read_lockfile(vpkg.dir) or {
         return
