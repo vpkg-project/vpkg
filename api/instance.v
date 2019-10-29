@@ -1,7 +1,6 @@
 module api
 
 import (
-    vargs
     os
 )
 
@@ -23,7 +22,7 @@ pub fn new_vpkg(dir string) Vpkg {
 }
 
 pub fn (vpkg mut Vpkg) run(args []string) {
-	_argv := vargs.parse(args, 0)
+	_argv := vargs_parse(args, 0)
 	vpkg.command =  _argv.command
     vpkg.options = _argv.options 
     vpkg.unknown = _argv.unknown
