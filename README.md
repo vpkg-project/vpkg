@@ -11,7 +11,7 @@ vpkg's approach is to incorporate the ideas taken from centralized and decentral
 
 
 ## Running your own registry
-VPkg's own [registry server](https://github.com/v-pkg/registry) is a perfect template to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
+vpkg's own [registry server](https://github.com/v-pkg/registry) is a perfect template to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
 
 ## Commands
 ```
@@ -38,6 +38,34 @@ OPTIONS
 
 --global, -g                               Installs the modules/packages into the `.vmodules` folder.
 --force                                    Force download the packages
+```
+
+## vpkg API
+vpkg can now be imported as a separate module in which you will be able to utilize all vpkg's features into your own programs. It's especially more useful if you want to be able to create your scripts for your project to setup your dependencies without compiling and installing a separate CLI.
+
+```golang
+// install.v
+module main
+
+import vpkg.api
+
+fn main() {
+	mut inst := api.new_vpkg('.')
+	inst.run(['install'])
+
+	os.system('rm ${os.executable()}')
+}
+
+```
+
+```sh
+$ v run install.v
+Installing packages
+Fetching nedpals.vargs
+Fetching package from vpm...
+
+vargs@fc193513733c2ed99467f5d903a824ea9087ed52
+1 package was installed successfully.
 ```
 
 ## TODO

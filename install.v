@@ -1,3 +1,5 @@
+#!/usr/local/bin/v run
+
 import api
 import os
 
