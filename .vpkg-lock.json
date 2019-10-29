@@ -1,9 +1,9 @@
 {
-   "version": "0.5.1",
+   "version": "0.5.2",
    "packages": [
         {
            "name": "vargs",
-           "version": "049dd1696cdb89f5378bf16bc31a85176853fd4f"
+           "version": "fc193513733c2ed99467f5d903a824ea9087ed52"
         }
    ]
 }
