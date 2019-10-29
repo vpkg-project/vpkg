@@ -1,6 +1,6 @@
 {
     "name": "vpkg",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "author": ["Ned Palacios <npdoesmc@gmail.com>"],
     "repo": "https://github.com/nedpals/vpkg",
     "sources": [
