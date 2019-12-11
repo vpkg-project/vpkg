@@ -30,7 +30,7 @@ struct Token {
 }
 
 fn new_scanner(vmod_path string) VModScanner {
-    if !os.file_exists(vmod_path) {
+    if !os.exists(vmod_path) {
         panic('v.mod not found.')
     }
 
@@ -91,7 +91,7 @@ fn (s mut VModScanner) create_string() string {
 	}
 	if start > s.pos{}
 	else {
-		lit = s.text.substr(start, end)
+		lit = s.text[start..end]
 	}
 	return lit
 }
@@ -108,7 +108,7 @@ fn (s mut VModScanner) create_identifier() string {
 			break
 		}
 	}
-	name := s.text.substr(start, s.pos)
+	name := s.text[start..s.pos]
 	s.pos--
 	return name
 }
@@ -143,6 +143,7 @@ fn token_type(t_type Lexeme) string {
         .eof { token_type = 'eof' }
         .str { token_type = 'str' }
         .name { token_type = 'name' }
+        else { token_type = 'unknown' }
     }
 
     return token_type
@@ -225,6 +226,7 @@ fn (s mut VModScanner) scan() Token {
         }
         `\n` { return tokenize(.newline, '') }
         `:` { return tokenize(.colon, '') }
+        else { return tokenize(.eof, '') }
     }
 
     return tokenize(.eof, '')
@@ -264,12 +266,14 @@ fn (s mut VModScanner) parse() VModPkgManifest {
                 match current_tokens.val {
                     'name' { pkg_info.name = value }
                     'version' { pkg_info.version = value }
+                    else{ continue }
                 }
             }
 
             if token_type(next_next.@type) == 'labr' {
                 match current_tokens.val {
                     'deps' { pkg_info.deps = get_array_contents(tokens, i+2) }
+                    else { continue }
                 }
             }
         }

@@ -34,7 +34,7 @@ fn (v mut Args) insert_option(name string, val string) {
 }
 
 pub fn vargs_parse(a []string, start int) Args {
-    args := a.slice(start, a.len)
+    args := a[start..a.len]
     mut parsed := Args{'', map[string]string, []string}
 
     for i, curr in args {
@@ -55,6 +55,7 @@ pub fn vargs_parse(a []string, start int) Args {
             match opt.len {
                 1 { if next.len == 0 { parsed.options[opt[0]] = '' } }
                 2 { parsed.insert_option(opt[0], opt[1]) }
+                else { continue }
             }
         }
 

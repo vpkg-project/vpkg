@@ -3,7 +3,17 @@ module api
 import (
     os
     json
+    filepath
 )
+
+struct PkgManifest {
+    name string
+    author []string
+    version string
+    sources []string
+    repo string
+    dependencies []string
+}
 
 fn load_manifest_file(dir string) PkgManifest {
     manifest_file_path := get_manifest_file_path(dir)
@@ -11,52 +21,38 @@ fn load_manifest_file(dir string) PkgManifest {
     if manifest_file_path.ends_with('v.mod') {
         return open_vmod(manifest_file_path)
     } else {
-        manifest_file_contents := os.read_file(manifest_file_path) or {
-            return PkgManifest{}
-        }
-
-        contents := json.decode(PkgManifest, manifest_file_contents) or {
-            return PkgManifest{}
-        }
+        manifest_file_contents := os.read_file(manifest_file_path) or { return PkgManifest{} }
+        contents := json.decode(PkgManifest, manifest_file_contents) or { return PkgManifest{} }
 
         return contents
     }
 }
 
 fn get_manifest_file_path(dir string) string {
-    if os.file_exists('${dir}/v.mod') {
-        return '${dir}/v.mod'
-    }
+    manifest_files := ['v.mod', '.vpkg.json', 'vpkg.json', '.vpm.json']
 
-    if os.file_exists('${dir}/.vpkg.json') {
-        return '${dir}/.vpkg.json'
-    }
+    for f in manifest_files {
+        m_path := filepath.join(dir, f)
 
-    if os.file_exists('${dir}/vpkg.json') {
-        return '${dir}/vpkg.json'
-    }
-
-    if os.file_exists('${dir}/.vpm.json') {
-        return '${dir}/.vpm.json'
+        if os.exists(m_path) {
+            return m_path
+        }
     }
 
     return ''
 }
 
 fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
-    filepath := get_manifest_file_path(dir)
+    m_path := get_manifest_file_path(dir)
 
     match format {
         'vmod' {manifest_to_vmod(manifest, dir)}
         'vpkg' {manifest_to_vpkg(manifest, dir)}
+        else { return }
     }
 
-    if filepath.ends_with('.vpkg.json') && format == 'vpkg' {
-        $if windows {
-            os.mv(filepath, dir + '\\vpkg.json')
-        } $else {
-            os.mv(filepath, dir + '/vpkg.json')
-        }
+    if m_path.ends_with('.vpkg.json') && format == 'vpkg' {
+        os.mv(m_path, filepath.join(dir, 'vpkg.json'))
     } 
 }
 
@@ -110,7 +106,6 @@ fn (manifest PkgManifest) to_vpkg_json() string {
     }
 
     vpkg_json_contents << '    ],\n'
-
     vpkg_json_contents << '    "repo": "${manifest.repo}",\n'
     vpkg_json_contents << '    "dependencies": [\n'
 
@@ -130,10 +125,7 @@ fn (manifest PkgManifest) to_vpkg_json() string {
 }
 
 fn manifest_to_vmod(manifest PkgManifest, dir string) {
-    vmod_file := os.create(dir + '/v.mod') or {
-        return
-    }
-
+    mut vmod_file := os.create(filepath.join(dir, 'v.mod')) or { return }
     vmod_contents_str := manifest.to_vmod()
 
     vmod_file.write(vmod_contents_str)
@@ -141,10 +133,7 @@ fn manifest_to_vmod(manifest PkgManifest, dir string) {
 }
 
 fn manifest_to_vpkg(manifest PkgManifest, dir string) {
-    vpkg_file := os.create(dir + '/vpkg.json') or {
-        return
-    }
-
+    mut vpkg_file := os.create(filepath.join(dir, 'vpkg.json')) or { return }
     vpkg_contents_str := manifest.to_vpkg_json()
 
     vpkg_file.write(vpkg_contents_str)

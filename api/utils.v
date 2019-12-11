@@ -1,33 +1,20 @@
 module api
 
-import os
+import (
+    os
+    net.urllib
+)
 
-fn check_git_version(dir string) string {
-    version := os.exec('git --git-dir ${dir}/.git log --pretty=format:%H -n 1') or {
-        return ''
-    }
-
-    return version.output
+fn delete_content(path string) {
+    os.rm(path)
 }
 
 fn delete_package_contents(path string) bool {
-    folder_contents := os.ls(path) or { return false }
-
-    for filename in folder_contents {
-        filepath := '${path}/${filename}'
-
-        if os.dir_exists(filepath) {
-            delete_package_contents(filepath)
-        } else {
-            os.rm(filepath)
-        }
-    }
-
+    os.walk(path, delete_content)
     new_folder_contents := os.ls(path) or { return false }
 
     if new_folder_contents.len == 0 {
         os.rmdir(path)
-
         return true
     } else {
         return false
@@ -38,9 +25,7 @@ fn sanitize_package_name(name string) string {
     illegal_chars := ['-']
     mut name_array := name.split('')
 
-    for i := 0; i < name_array.len; i++ {
-        current := name_array[i]
-
+    for i, current in name_array {
         if illegal_chars.index(current) != -1 {
             name_array[i] = '_'
         }
@@ -49,31 +34,26 @@ fn sanitize_package_name(name string) string {
     return name_array.join('')
 }
 
-fn package_name(name string) string {
-    is_git := is_git_url(name)
-    mut pkg_name := name
+fn package_name(path_or_name string) string {
+    is_git := is_git_url(path_or_name)
+    mut pkg_name := path_or_name
 
     if is_git {
-        pkg_name = os.filename(name)
+        parse_url := urllib.parse(path_or_name) or { return sanitize_package_name(pkg_name) }
+        paths := parse_url.path.split('/')
+
+        pkg_name = paths[paths.len-1]
     }
 
-    if name.contains('.git') {
+    if path_or_name.contains('.git') {
         pkg_name = pkg_name.replace('.git', '')
     }
 
-    if name.starts_with('v-') {
+    if path_or_name.starts_with('v-') {
         pkg_name = pkg_name.all_after('v-')
     }
 
     return sanitize_package_name(pkg_name)
-}
-
-pub fn (vpkg Vpkg) create_modules_dir() string {
-    if os.dir_exists(vpkg.dir) {
-        os.mkdir(vpkg.dir)
-    }
-
-    return vpkg.dir
 }
 
 fn is_git_url(a string) bool {
@@ -88,13 +68,27 @@ fn is_git_url(a string) bool {
     return false
 }
 
+pub fn (vpkg Vpkg) create_modules_dir() string {
+    if os.exists(vpkg.install_dir) {
+        os.mkdir(vpkg.install_dir) or { return '' }
+    }
+
+    return vpkg.install_dir
+}
+
 fn print_status(packages []InstalledPackage, status_type string) {
     mut package_word := 'package'
     mut desc_word := 'was'
 
     if status_type != 'removed' {
         for package in packages {
-            println('${package.name}@${package.version}')
+            pkg_commit := if package.version != package.latest_commit || package.latest_commit.len != 0 { 
+                ' at commit ' + package.latest_commit
+            } else {
+                ''
+            } 
+
+            println('${package.name}@${package.version}${pkg_commit}')
         }
     }
 

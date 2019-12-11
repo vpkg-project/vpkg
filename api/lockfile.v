@@ -3,12 +3,23 @@ module api
 import (
     os
     json
+    filepath
 )
 
-fn read_lockfile(dir string) ?Lockfile {
-    lockfile_path := dir + '/.vpkg-lock.json'
+struct Lockfile {
+mut:
+    version string
+    packages []InstalledPackage
+}
 
-    if os.file_exists(lockfile_path) {
+fn get_lockfile_path(dir string) string {
+    return filepath.join(dir, '.vpkg-lock.json')
+}
+
+fn read_lockfile(dir string) ?Lockfile {
+    lockfile_path := get_lockfile_path(dir)
+
+    if os.exists(lockfile_path) {
         contents := os.read_file(lockfile_path) or {
             return error('Cannot read ${dir}')
         }
@@ -39,29 +50,33 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
         lock.version = Version
     }
  
-    if remove {
-        for package in packages {
-            package_idx := lock.find_package(package.name)
+    for package in packages {
+        package_idx := lock.find_package(package.name)
 
-            if package_idx != -1 {
+        if package_idx != -1 {
+            if remove {
                 lock.packages.delete(package_idx)
-            }
-        }
-    } else {
-        for package in packages {
-            package_idx := lock.find_package(package.name)
+            } else {
+                curr_lock_pkg := lock.packages[package_idx]
 
-            if package_idx != -1 {
                 lock.packages[package_idx] = InstalledPackage{
                     name: package.name,
-                    path: package.path
-                    version: package.version
+                    path: package.path,
+                    version: package.version,
+                    url: if package.url == '' || package.url == curr_lock_pkg.url { curr_lock_pkg.url } else { package.url },
+                    method: if package.method == '' || package.method == curr_lock_pkg.method { curr_lock_pkg.method } else { package.method },
+                    latest_commit: package.latest_commit
                 }
-            } else {
+            }
+        } else {
+            if !remove {
                 lock.packages << InstalledPackage{
                     name: package.name,
-                    path: package.path
-                    version: package.version
+                    path: package.path,
+                    version: package.version,
+                    url: package.url,
+                    method: package.method,
+                    latest_commit: package.latest_commit
                 }
             }
         }
@@ -71,32 +86,30 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
     mut contents := ['{', '   "version": "${lock.version}",', '   "packages": [']
 
     for i, pkg in lock.packages {
-        contents << '        {'
-        contents << '           "name": "${pkg.name}",'
-        contents << '           "version": "${pkg.version}"'
+        contents << '      {'
+        contents << '         "name": "${pkg.name}",'
+        contents << '         "version": "${pkg.version}",'
+        contents << '         "url": "${pkg.url}",'
+        contents << '         "method": "${pkg.method}"'
+        contents << '         "latest_commit": "${pkg.latest_commit}"'
 
         if i != lock.packages.len-1 {
-            contents << '        },'
+            contents << '      },'
         } else {
-            contents << '        }'
+            contents << '      }'
         }
     }
 
     contents << '   ]'
     contents << '}'
 
-    os.write_file(dir + '/.vpkg-lock.json', contents.join('\n'))
+    os.write_file(get_lockfile_path(dir), contents.join('\n'))
 }
 
 fn create_lockfile(dir string) Lockfile {
     lockfile_json_arr := ['{', '   "version": "${Version}",', '   "packages": []', '}']
-
-    lockfile := os.create(dir + '/.vpkg-lock.json') or {
-        return Lockfile{Version, []InstalledPackage}
-    }
-
+    mut lockfile := os.create(get_lockfile_path(dir)) or { return Lockfile{Version, []InstalledPackage} }
     lockfile_json := lockfile_json_arr.join('\n')
-
     lockfile.write(lockfile_json)
     defer { lockfile.close() }
 

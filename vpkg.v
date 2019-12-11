@@ -1,13 +1,13 @@
 module main
 
 import (
-    api
+    api as vpkg
     os
 )
 
 fn main() {
     _args := os.args
-    mut app := api.new_vpkg(os.getwd())
+    mut app := vpkg.new(os.getwd())
     
-    app.run(_args.slice(1, _args.len))
+    app.run(_args[1.._args.len])
 }

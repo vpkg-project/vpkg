@@ -2,27 +2,34 @@ module api
 
 import (
     os
-    net.urllib as urllib
+    filepath
 )
 
-fn fetch_from_registry(name string, install_location string, global bool, sources []string) InstalledPackage {
+struct Package {
+    name string = ''
+    url string = ''
+    method string = ''
+}
+
+struct InstalledPackage {
+mut:
+    name string
+    path string
+    version string
+    url string
+    latest_commit string
+    method string
+}
+
+fn fetch_from_sources(name string, install_location string, sources []string) InstalledPackage {
     mut pkg := Package{}
     mut dl_pkg := InstalledPackage{}
 
     for registry_url in sources {
-        if registry_url == 'vpm' {
-            println('Fetching package from ${registry_url}...')
-        } else {
-            url := urllib.parse(registry_url) or {
-                return dl_pkg
-            }
-            println('Fetching package from ${url.host}...')
-        }
-
         pkg = if registry_url == 'vpm' { 
-            search_from_vpm(name)
+            new_vpm('https://vpm.best', '/jsmod').search(name)
         } else { 
-            search_from_registry(name, registry_url)
+            new_registry(registry_url, '/registry.json').search(name)
         }
 
         if pkg.name.len == 0 {
@@ -32,77 +39,60 @@ fn fetch_from_registry(name string, install_location string, global bool, source
         }
     }
 
-    if pkg.method == 'git' {
-        dl_pkg = fetch_from_git(pkg.url, install_location, global)
+    if pkg.method.len != 0 {
+        fetch_pkg := FetchMethod{download_url: pkg.url, dir: install_location, args: []}
+        dl_pkg = fetch_pkg.dl_package(pkg.method)
     }
 
     return dl_pkg
 }
 
-fn fetch_from_git(path string, install_location string, global bool) InstalledPackage {
-    pkg_name := package_name(path)
-    dir_name := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
-    branch := if path.all_after('#') != path { path.all_after('#') } else { 'master' }
-    clone_url := path.all_before('#')
-    clone_dir := '${install_location}/${dir_name}'
-
-    if os.dir_exists(clone_dir) {
-        delete_package_contents(clone_dir)
-    }
-
-    git_clone := os.exec('git clone ${clone_url} ${clone_dir} --branch ${branch} --quiet --depth 1') or {
-        eprintln('Git clone error')
-        return InstalledPackage{}
-    }
-
-    println(git_clone.output)
-
-    return InstalledPackage{
-        name: pkg_name,
-        path: clone_dir,
-        version: check_git_version(clone_dir)
-    }
-}
-
-pub fn (vpkg Vpkg) get_package(name string) InstalledPackage {
-    pkg_name := package_name(name)
-
-    println('Fetching ${pkg_name}')
-    exists_on_vlib := os.dir_exists('${GlobalModulesDir}/${pkg_name}')
-    exists_on_cwd := os.dir_exists('${vpkg.dir}/${pkg_name}')
-    module_install_path := if exists_on_cwd && !vpkg.is_global { vpkg.dir } else { GlobalModulesDir }
-    install_location := if vpkg.is_global { GlobalModulesDir } else { vpkg.dir }
-
+pub fn (vpkg Vpkg) fetch_package(path_or_name string) InstalledPackage {
+    pkg_name := package_name(path_or_name)
+    print('Fetching ${pkg_name}')
+    exists_on_vlib := os.exists(filepath.join(GlobalModulesDir, pkg_name))
+    exists_on_cwd := os.exists(filepath.join(vpkg.install_dir, pkg_name))
+    module_install_path := if exists_on_cwd && !vpkg.is_global { vpkg.install_dir } else { GlobalModulesDir }
+    install_location := if vpkg.is_global { GlobalModulesDir } else { vpkg.install_dir }
     mut data := InstalledPackage{}
 
+
     if (exists_on_vlib && vpkg.is_global) || (exists_on_cwd && !('force' in vpkg.options)) {
-        installed_path := '${module_install_path}/${pkg_name}'
+        installed_path := filepath.join(module_install_path, pkg_name)
+        fetch_from_path := FetchMethod{ dir: installed_path }
 
         println('${pkg_name} is already installed.')
         
+        pkg_manifest := load_manifest_file(installed_path)
         data = InstalledPackage{
-            name: pkg_name,
-            path: '${module_install_path}/${pkg_name}',
-            version: check_git_version(installed_path)
+            name: if pkg_manifest.name.len != 0 { pkg_manifest.name } else { pkg_name },
+            path: installed_path,
+            version: if pkg_manifest.version.len != 0 { pkg_manifest.version } else { fetch_from_path.check_version('git') },
+            latest_commit: fetch_from_path.check_version('git'),
+            method: ''
         }
     } else {
-        if is_git_url(name) {
-            data = fetch_from_git(name, install_location, vpkg.is_global)
+        if is_git_url(path_or_name) {
+            fetch_from_url := FetchMethod{download_url: path_or_name, dir: install_location, args: []}
+            data = fetch_from_url.dl_package('git')
         } else {
-            use_builtin := 'use-builtin' in vpkg.options
             mut sources := []string
 
-            if !use_builtin || vpkg.options['use-builtin'] != 'false' {
-                sources << ['vpm', 'https://v-pkg.github.io/registry/']
+            if !('use-builtin' in vpkg.options) || vpkg.options['use-builtin'] != 'false' {
+                sources << ['vpm', 'https://vpkg-project.github.io/registry/']
             }
 
-            sources << vpkg.manifest.sources
+            for custom_source in vpkg.manifest.sources {
+                if sources.index(custom_source) == -1 {
+                    sources << custom_source
+                }
+            }
 
-            data = fetch_from_registry(name, install_location, vpkg.is_global, sources)
+            data = fetch_from_sources(path_or_name, install_location, sources)
         }
 
         if data.name.len == 0 {
-            println('Package \'${name}\' not found.')
+            println('Package \'${path_or_name}\' not found.')
         }
     }
 

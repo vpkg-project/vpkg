@@ -1,6 +1,9 @@
 module api
 
-import os
+import (
+    os
+    filepath
+)
 
 pub fn (vpkg Vpkg) migrate_manifest() {
     m_type := if 'format' in vpkg.options { vpkg.options['format'] } else { 'vpkg' }
@@ -13,6 +16,8 @@ pub fn (vpkg Vpkg) create_manifest_file() {
     
     mut pkg_manifest_contents := []string
     mut manifest_filename := 'vpkg.json'
+
+
 
     match vpkg.options['format'] {
         'vpkg' {
@@ -40,7 +45,7 @@ pub fn (vpkg Vpkg) create_manifest_file() {
         }
     }
 
-    manifest_data := os.create('${vpkg.dir}/${manifest_filename}') or {
+    mut manifest_data := os.create(filepath.join(vpkg.dir, manifest_filename)) or {
         eprintln('Package manifest file was not created successfully.')
         return
     }
@@ -52,12 +57,10 @@ pub fn (vpkg Vpkg) create_manifest_file() {
 }
 
 pub fn (vpkg Vpkg) install_packages(dir string) {
-    pkg_info := vpkg.manifest
-
     println('Installing packages')
+    pkg_info := vpkg.manifest
     packages := pkg_info.dependencies
-
-    vpkg.get_packages(packages)
+    vpkg.get_packages(packages, true)
 }
 
 pub fn (vpkg Vpkg) remove_packages(packages []string) {
@@ -69,13 +72,9 @@ pub fn (vpkg Vpkg) remove_packages(packages []string) {
 
     for package in packages {
         pkg_name := if package.starts_with('v-') { package.all_after('v-') } else { package }
-        status := delete_package_contents('${vpkg.dir}/${pkg_name}')
+        status := delete_package_contents(filepath.join(vpkg.install_dir, pkg_name))
 
-        if status {
-            removed_packages << InstalledPackage{
-                name: package
-            }
-        }
+        if status { removed_packages << InstalledPackage{ name: package } }
     }
 
     lockfile.regenerate(removed_packages, true, vpkg.dir)
@@ -84,31 +83,26 @@ pub fn (vpkg Vpkg) remove_packages(packages []string) {
 
 pub fn (vpkg Vpkg) update_packages() {    
     mut updated_packages := []InstalledPackage
-
     println('Fetching lockfile')
     mut lockfile := read_lockfile(vpkg.dir) or { return }
-
     println('Updating packages')
 
     for pkg in lockfile.packages {
-        current_hash := pkg.version
+        current_hash := if pkg.latest_commit.len != 0 { pkg.latest_commit } else { pkg.version }
         pkg_name := package_name(pkg.name)
-        pkg_location := '${vpkg.dir}/${pkg_name}'
-
+        pkg_location := filepath.join(vpkg.install_dir, pkg_name)
         mut latest_hash := current_hash
-
-        os.exec('git -C ${pkg_location} fetch')
-        latest_hash = check_git_version(pkg_location)
+        fetch_pkg_info := FetchMethod{ dir: pkg_location }
+        latest_hash = fetch_pkg_info.check_version(pkg.method)
+        pkg_manifest := load_manifest_file(pkg_location)
 
         if current_hash != latest_hash {
-            os.exec('git -C ${pkg_location} pull')
-
-            updated_package := InstalledPackage{
+            updated_packages << InstalledPackage{
                 name: pkg.name,
-                version: latest_hash
+                version: if pkg_manifest.version.len != 0 { pkg_manifest.version } else { latest_hash },
+                url: pkg.url,
+                method: pkg.method
             }
-
-            updated_packages << updated_package
         }
     }
 
@@ -116,27 +110,43 @@ pub fn (vpkg Vpkg) update_packages() {
     print_status(updated_packages, 'updated')
 }
 
-pub fn (vpkg Vpkg) get_packages(packages []string) {
+pub fn (vpkg Vpkg) get_packages(packages []string, is_final bool) []InstalledPackage {
     mut installed_packages := []InstalledPackage
-    mut lockfile := read_lockfile(vpkg.dir) or { return }
+    mut lockfile := read_lockfile(vpkg.dir) or { return installed_packages }
+    mut deps := []string
 
-    for i := 0; i < packages.len; i++ {
-        package := vpkg.get_package(packages[i])
+    for pkg in packages {
+        // pkg_arr := pkg.split('@')
+        package := vpkg.fetch_package(pkg)
 
         if package.name.len != 0 {
             installed_packages << package
+            pkg_manifest := load_manifest_file(package.path)
+            for dep in pkg_manifest.dependencies {
+                dep_idx := deps.index(dep)
+
+                if dep_idx == -1 {
+                    deps << dep
+                }
+            }
         }
     }
 
-    lockfile.regenerate(installed_packages, false, vpkg.dir)
-    print_status(installed_packages, 'installed')
+    if deps.len != 0 {
+        installed_packages << vpkg.get_packages(deps, false)
+    }
+    
+    if is_final {
+        lockfile.regenerate(installed_packages, false, vpkg.dir)
+        print_status(installed_packages, 'installed')
+    }
+
+    return installed_packages
 }
 
 pub fn (vpkg Vpkg) show_package_information() {
     pkg_info := vpkg.manifest
-    lockfile := read_lockfile(vpkg.dir) or {
-        return
-    }
+    lockfile := read_lockfile(vpkg.dir) or { return }
 
     println('Manifest path: ${vpkg.manifest_file_path}')
     println('Package name: ${pkg_info.name}@${pkg_info.version}')
@@ -164,16 +174,12 @@ pub fn (vpkg Vpkg) show_package_information() {
 
 fn (vpkg Vpkg) show_version() {
     println('vpkg ${Version} for ${os.user_os()}')
-    println('Repo: https://github.com/v-pkg/vpkg \n')
+    println('Repo: https://github.com/vpkg-project/vpkg \n')
     println('2019 (c) Ned Palacios and it\'s contributors.')
 }
 
 fn (vpkg Vpkg) show_help() {
-    println('vpkg ${Version}')
-    println('An alternative package manager for V.')
-
-    println('\nUSAGE\n')
-    println('vpkg <COMMAND> [ARGS...] [options]')
+    println('Usage: vpkg <COMMAND> [ARGS...] [options]')
 
     println('\nCOMMANDS\n')
 

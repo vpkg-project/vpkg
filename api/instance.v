@@ -2,21 +2,35 @@ module api
 
 import (
     os
+    filepath
 )
 
 const (
-    Version = '0.5.3'
-    GlobalModulesDir = '${os.home_dir()}/.vmodules'
+    Version = '0.6'
+    GlobalModulesDir = os.home_dir() + '.vmodules'
 )
 
-pub fn new_vpkg(dir string) Vpkg {
-    mut instance := Vpkg{
+pub struct Vpkg {
+pub mut:
+    command string
+    options map[string]string
+    unknown []string
+    dir string
+    install_dir string
+    manifest_file_path string
+    manifest PkgManifest
+    is_global bool
+    sources []string
+}
+
+pub fn new(dir string) Vpkg {
+    instance := Vpkg{
         dir: dir,
         manifest_file_path: get_manifest_file_path(dir),
-        is_global: false
+        install_dir: filepath.join(dir, 'modules')
+        is_global: false,
+        manifest: load_manifest_file(dir)
     }
-
-    instance.manifest = load_manifest_file(instance.dir)
 
     return instance
 }
@@ -29,12 +43,12 @@ pub fn (vpkg mut Vpkg) run(args []string) {
     vpkg.is_global = 'g' in vpkg.options || 'global' in vpkg.options
 
     match vpkg.command {
-        'get' { vpkg.get_packages(vpkg.unknown) }
+        'get' { vpkg.get_packages(vpkg.unknown, true) }
         'help' { vpkg.show_help() }
         'info' { vpkg.show_package_information() }
         'init' { vpkg.create_manifest_file() }
         'install' { vpkg.install_packages(vpkg.dir) }
-        'remove' { vpkg.unknown }
+        'remove' { vpkg.remove_packages(vpkg.unknown) }
         'migrate' { if vpkg.unknown[0] == 'manifest' {vpkg.migrate_manifest()} else {vpkg.show_help()} }
         'update' { vpkg.update_packages() }
         'version' { vpkg.show_version() }
