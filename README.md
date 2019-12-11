@@ -2,25 +2,20 @@
 vpkg is a package manager written on [V](https://github.com/vlang/v) for V.
 
 ## Features
-vpkg's approach is to incorporate the ideas taken from centralized and decentralized package managers.
-- Centralized, popular packages are being listed on [VPM](https://vpm.vlang.io) and on to a single [`registry.json`](https://github.com/v-pkg/registry/tree/master/registry.json) file.
-- Uses a single, JSON file for storing package information as well as it's dependencies. (In this case, [`vpkg.json`](vpkg.json))
-- Packages stored from `registry.json` file can be obtained through a simple `vpkg get [package name]` while the rest uses regular Git URLs.
-- Support for multiple package manifests (`v.mod`, and `vpkg.json`).
-- Support for custom package registries/sources.
-
+Bringing the best of dependency management on V.
+- **Decentralized.** Download and use packages from other sources aside from VPM and vpkg registry.
+- **Easy to use.** Set-up, use, and master the commands of vpkg CLI within minutes.
+- **Fast.** It can be run from the low-spec PC to the fastest supercomputers.
+- **Interoperable.** It supports `v.mod`, and `.vpm.json` for reading package manifests and managing dependencies.
+- **Light.** Weighs only at < 300kb so it can be used in devices with tight storage or in low network conditions.
+- **Reliable.** It uses a lockfile mechanism to ensure that all your dependencies work across all of your machines.
 
 ## Running your own registry
-vpkg's own [registry server](https://github.com/v-pkg/registry) is a perfect template to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
+vpkg's own [registry server](https://github.com/vpkg-project/registry) is a perfect template to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
 
 ## Commands
 ```
-VPkg 0.5
-An alternative package manager for V.
-
-USAGE
-
-vpkg <COMMAND> [ARGS...] [options]
+Usage: vpkg <COMMAND> [ARGS...] [options]
 
 COMMANDS
 
@@ -32,12 +27,12 @@ install                                    Reads the package manifest file and i
 migrate manifest [--format=vpkg|vmod]      Migrate manifest file to a specified format.
 remove [packages]                          Removes packages
 update                                     Updates packages.
-version                                    Prints the Version of this program.
+version                                    Prints the version of this program.
 
 OPTIONS
 
 --global, -g                               Installs the modules/packages into the `.vmodules` folder.
---force                                    Force download the packages
+--force                                    Force download the packages.
 ```
 
 ## vpkg API
@@ -62,25 +57,22 @@ fn main() {
 $ v run install.v
 Installing packages
 Fetching nedpals.vargs
-Fetching package from vpm...
 
 vargs@fc193513733c2ed99467f5d903a824ea9087ed52
 1 package was installed successfully.
 ```
 
 ## TODO
-- ability to publish and search packages in VPM and VPKG registry.
-- recursive installation of dependencies of packages.
+- ability to publish and ~~search~~ packages in VPM and VPKG registry.
 - unified logging interface
 
 ## Installation
 - Clone the repo.
-- Download and install [v-args](https://github.com/nedpals/vargs) and place it into the folder where your vpkg source code is located.
 - Build it from source.
 
 ## Building from Source
 ```
-git clone https://github.com/v-pkg/vpkg.git
+git clone https://github.com/vpkg-project/vpkg.git
 cd vpkg/
 v -prod .
 ```

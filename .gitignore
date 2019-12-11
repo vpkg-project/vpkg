@@ -3,3 +3,4 @@ vargs/
 *.exe
 *.c
 modules/
+bin/
