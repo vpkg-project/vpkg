@@ -10,6 +10,18 @@ Bringing the best of dependency management on V.
 - **Light.** Weighs at less than 300kb. Perfect with devices running on tight storage or in low network conditions.
 - **Reliable.** Uses a lockfile mechanism to ensure that all your dependencies work across all of your machines.
 
+## Installation
+### Pre-built binaries
+Install vpkg by downloading the pre-built binaries available found below the release notes of the [latest release](https://github.com/vpkg/releases).
+
+### Building from Source
+For those platforms which aren't included in the available pre-built binaries or would like to compile it by yourself, just clone this repository and build directly with the V compiler with the `-prod` flag.
+```
+git clone https://github.com/vpkg-project/vpkg.git
+cd vpkg/
+v -prod .
+```
+
 ## Running your own registry
 Use the provided [registry server template](https://github.com/vpkg-project/registry-template) to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
 
@@ -67,18 +79,6 @@ vargs@fc193513733c2ed99467f5d903a824ea9087ed52
 - options for debugging output
 - error handling for better bug tracking and report
 - subversion / svn support
-
-## Installation
-### Pre-built binaries
-You can install vpkg by downloading the pre-built binaries available for Linux and Windows. Just check out the assets found below the release notes of the [latest release](https://github.com/vpkg/releases).
-
-### Building from Source
-For those platforms which aren't included in the available pre-built binaries or just like to compile it by yourself, just clone this repository and build it directly with the V compiler.
-```
-git clone https://github.com/vpkg-project/vpkg.git
-cd vpkg/
-v -prod .
-```
 
 
 ## Copyright
