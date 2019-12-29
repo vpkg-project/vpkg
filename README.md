@@ -1,17 +1,17 @@
 # vpkg 
-vpkg is a package manager written on [V](https://github.com/vlang/v) for V.
+vpkg is an alternative package manager written on [V](https://github.com/vlang/v) for V.
 
 ## Features
 Bringing the best of dependency management on V.
-- **Decentralized.** Download and use packages from other sources aside from VPM and vpkg registry.
+- **Decentralized.** Download and use packages from other sources aside from VPM and the vpkg registry.
 - **Easy to use.** Set-up, use, and master the commands of vpkg CLI within minutes.
-- **Fast.** It can be run from the low-spec PC to the fastest supercomputers.
-- **Interoperable.** It supports `v.mod`, and `.vpm.json` for reading package manifests and managing dependencies.
-- **Light.** Weighs only at < 300kb so it can be used in devices with tight storage or in low network conditions.
-- **Reliable.** It uses a lockfile mechanism to ensure that all your dependencies work across all of your machines.
+- **Fast.** Runs perfectly on your potato PC up to the fastest supercomputers.
+- **Interoperable.** Supports `v.mod`, and `.vpm.json` for reading package manifests and managing dependencies.
+- **Light.** Weighs at less than 300kb. Perfect with devices running on tight storage or in low network conditions.
+- **Reliable.** Uses a lockfile mechanism to ensure that all your dependencies work across all of your machines.
 
 ## Running your own registry
-vpkg's own [registry server](https://github.com/vpkg-project/registry) is a perfect template to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
+Use the provided [registry server template](https://github.com/vpkg-project/registry-template) to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
 
 ## Commands
 ```
@@ -36,13 +36,13 @@ OPTIONS
 ```
 
 ## vpkg API
-vpkg can now be imported as a separate module in which you will be able to utilize all vpkg's features into your own programs. It's especially more useful if you want to be able to create your scripts for your project to setup your dependencies without compiling and installing a separate CLI.
+Use vpkg as a module that you can use to integrate into your own programs. Create your own VSH scripts, automate installation, and more without needing for a separate CLI program.
 
-```golang
+```v
 // install.v
 module main
 
-import vpkg.api
+import vpkg.api // or import nedpals.vpkg.api
 
 fn main() {
 	mut inst := api.new_vpkg('.')
@@ -62,15 +62,18 @@ vargs@fc193513733c2ed99467f5d903a824ea9087ed52
 1 package was installed successfully.
 ```
 
-## TODO
-- ability to publish and ~~search~~ packages in VPM and VPKG registry.
-- unified logging interface
+## Roadmap
+- ability to publish packages into VPM and the vpkg registry.
+- options for debugging output
+- error handling for better bug tracking and report
+- subversion / svn support
 
 ## Installation
-- Clone the repo.
-- Build it from source.
+### Pre-built binaries
+You can install vpkg by downloading the pre-built binaries available for Linux and Windows. Just check out the assets found below the release notes of the [latest release](https://github.com/vpkg/releases).
 
-## Building from Source
+### Building from Source
+For those platforms which aren't included in the available pre-built binaries or just like to compile it by yourself, just clone this repository and build it directly with the V compiler.
 ```
 git clone https://github.com/vpkg-project/vpkg.git
 cd vpkg/
