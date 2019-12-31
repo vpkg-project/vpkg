@@ -12,7 +12,7 @@ pub fn (vpkg Vpkg) migrate_manifest() {
 }
 
 pub fn (vpkg Vpkg) create_manifest_file() {
-    pkg_name := os.filename(vpkg.dir)
+    pkg_name := filepath.filename(vpkg.dir)
     
     mut pkg_manifest_contents := []string
     mut manifest_filename := 'vpkg.json'
