@@ -74,7 +74,7 @@ pub fn (vpkg Vpkg) fetch_package(path_or_name string) InstalledPackage {
     } else {
         if is_url(path_or_name) {
             fetch_from_url := FetchMethod{download_url: path_or_name, dir: install_location, args: []}
-            data = fetch_from_url.dl_package('git')
+            data = fetch_from_url.dl_package(if 'method' in vpkg.options { vpkg.options['method'] } else {'git'})
         } else {
             mut sources := []string
 
