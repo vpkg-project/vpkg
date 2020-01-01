@@ -79,42 +79,40 @@ pub fn (vpkg Vpkg) create_manifest_file() {
     
     mut pkg_manifest_contents := []string
     mut manifest_filename := 'vpkg.json'
-
-
+    mut mw := new_vpkg_json()
 
     match vpkg.options['format'] {
-        'vpkg' {
-            pkg_manifest_contents << '{\n   "name": "${pkg_name}",'
-            pkg_manifest_contents << '   "version": "1.0",'
-            pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],'
-            pkg_manifest_contents << '   "repo": "https://github.com/username/repo",'
-            pkg_manifest_contents << '   "dependencies": []'
-            pkg_manifest_contents << '}' 
-        }
         'vmod' {
+            mw = new_vmod()
             manifest_filename = 'v.mod'
-            pkg_manifest_contents << 'Module {\n   name: \'${pkg_name}\','
-            pkg_manifest_contents << '   version: \'1.0\','
-            pkg_manifest_contents << '   dependencies: []'
-            pkg_manifest_contents << '}' 
         }
-        else {
-            pkg_manifest_contents << '{\n   "name": "${pkg_name}",'
-            pkg_manifest_contents << '   "version": "1.0",'
-            pkg_manifest_contents << '   "author": ["Author Name <author@example.com>"],'
-            pkg_manifest_contents << '   "repo": "https://github.com/username/repo",'
-            pkg_manifest_contents << '   "dependencies": []'
-            pkg_manifest_contents << '}' 
+        'vpkg' {
+            mw = new_vpkg_json()
         }
+        else {}
+        }
+
+    mw.write('name', pkg_name, false)
+    mw.write('version', '1.0', false)
+
+    if vpkg.options['format'] == 'vmod' {
+        mw.write_arr('deps', [], false)
+    } else {
+        mw.write_arr('author', ['Your Author Name <author@example.com>'], false)
+        mw.write('repo', 'https://github.com/<your-username>/<your-repo>', false)
+        mw.write_arr('dependencies', [], false)
     }
+
+    mw.close()
 
     mut manifest_data := os.create(filepath.join(vpkg.dir, manifest_filename)) or {
         eprintln('Package manifest file was not created successfully.')
         return
     }
 
-    manifest_data.write(pkg_manifest_contents.join('\n'))
+    manifest_data.write(mw.contents.str())
     defer { manifest_data.close() }
+    mw.contents.free()
 
     println('Package manifest file was created successfully.')
 }

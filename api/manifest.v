@@ -4,6 +4,7 @@ import (
     os
     json
     filepath
+    strings
 )
 
 struct PkgManifest {
@@ -14,6 +15,118 @@ struct PkgManifest {
     sources []string
     repo string
     dependencies []string
+}
+
+struct ManifestWriter {
+    key_quotes string
+    val_quotes string
+    opening string
+    closing string
+    colon string
+    comma string
+    spaces_count int
+pub mut:
+    contents strings.Builder
+}
+
+fn new_vpkg_json() ManifestWriter {
+    return ManifestWriter{
+        key_quotes: '"',
+        val_quotes: '"',
+        opening: '{',
+        closing: '}',
+        colon: ':',
+        comma: ',',
+        spaces_count: 4,
+        contents: strings.new_builder(1024)
+    }
+}
+
+fn new_vmod() ManifestWriter {
+    return ManifestWriter{
+        key_quotes: '',
+        val_quotes: '\'',
+        opening: 'Module {',
+        closing: '}',
+        colon: ':',
+        comma: ',',
+        spaces_count: 4,
+        contents: strings.new_builder(1024)
+    }
+}
+
+
+fn (mw mut ManifestWriter) init_write() {
+    mw.contents.writeln(mw.opening)
+}
+
+fn (mw mut ManifestWriter) close() {
+    mw.contents.write('\n' + mw.closing)
+}
+
+fn (mw mut ManifestWriter) write(key string, val string, newline bool) {
+    if mw.contents.len > mw.initial_content().len {
+        mw.contents.writeln(mw.comma)
+    }
+
+    key_with_quotes := mw.key_quotes + key + mw.key_quotes
+    val_with_quotes := mw.val_quotes + val + mw.val_quotes
+    mut text := key_with_quotes + '${mw.colon} ' + val_with_quotes
+
+    if mw.contents.len == 0 { mw.init_write() }
+
+    if (val.starts_with('[') && val.ends_with(']')) || (val.starts_with('{') && val.starts_with('}')) {
+        text = key_with_quotes + '${mw.colon} ' + val
+    }
+
+    if newline {
+        mw.contents.writeln(strings.repeat(` `, mw.spaces_count) + text)
+    } else {
+        mw.contents.write(strings.repeat(` `, mw.spaces_count) + text)
+    }
+}
+
+fn (mw ManifestWriter) initial_content() string {
+    text := mw.opening + '\n'
+    return text
+}
+
+fn (mw mut ManifestWriter) write_arr(key string, arr []string, newline bool) {
+    if mw.contents.len != mw.initial_content().len {
+        mw.contents.writeln(mw.comma)
+    }
+
+    key_with_quotes := mw.key_quotes + key + mw.key_quotes
+
+    if mw.contents.len == 0 { mw.init_write() }
+
+    mw.contents.write(strings.repeat(` `, mw.spaces_count) + key_with_quotes + '${mw.colon} ')
+
+    if newline {
+        mw.contents.writeln('[')
+    } else {
+        mw.contents.write('[')
+    }
+
+    for i, val in arr {
+        mut text := mw.val_quotes + val + mw.val_quotes
+
+        if arr.len > 1 && i != arr.len-1 {
+            text = text + '${mw.comma} '
+        }
+
+        if newline {
+            mw.contents.write(strings.repeat(` `, mw.spaces_count*2) + text)
+        } else {
+            mw.contents.write(text)
+        }
+    }
+
+    if newline {
+        mw.contents.write('\n' + strings.repeat(` `, mw.spaces_count) + ']')
+    } else {
+        mw.contents.write(']')
+    }
 }
 
 fn load_manifest_file(dir string) PkgManifest {
@@ -68,61 +181,27 @@ fn convert_to_vpm(name string) string {
 }
 
 fn (manifest PkgManifest) to_vmod() string {
-    mut vmod_contents := ['Module {\n']
-    vmod_contents << '   name: \'${manifest.name}\'\n'
-    vmod_contents << '   version: \'${manifest.version}\'\n'
-    vmod_contents << '   deps: ['
+    mut vmod := new_vmod()
 
-    for i, dep in manifest.dependencies {
-        depp := if is_git_url(dep) { convert_to_vpm(dep) } else { dep }
+    vmod.write('name', manifest.name, false)
+    vmod.write('version', manifest.version, false)
+    vmod.write_arr('deps', manifest.dependencies, false)
+    vmod.close()
 
-        vmod_contents << '\'${depp}\''
-
-        if i != 0 && i != manifest.dependencies.len {
-            vmod_contents << ','
-        }
-    }
-
-    vmod_contents << ']\n'
-    vmod_contents << '}'
-
-    return vmod_contents.join('')
+    return vmod.contents.str()
 }
 
 fn (manifest PkgManifest) to_vpkg_json() string {
-    mut vpkg_json_contents := []string
+    mut vpkg_json := new_vpkg_json()
 
-    vpkg_json_contents << '{\n    "name": "${manifest.name}",\n'
-    vpkg_json_contents << '    "version": "${manifest.version}",\n'
-    vpkg_json_contents << '    "author": [\n'
-    
-    for i, author in manifest.author {
-        vpkg_json_contents << '        "${author}"'
+    vpkg_json.write('name', manifest.name, false)
+    vpkg_json.write('version', manifest.version, false)
+    vpkg_json.write_arr('author', manifest.author, true)
+    vpkg_json.write('repo', manifest.repo, false)
+    vpkg_json.write_arr('dependencies', manifest.dependencies, true)
+    vpkg_json.close()
 
-        if i != 0 && i != manifest.author.len {
-            vpkg_json_contents << ','
-        }
-        
-        vpkg_json_contents << '\n'
-    }
-
-    vpkg_json_contents << '    ],\n'
-    vpkg_json_contents << '    "repo": "${manifest.repo}",\n'
-    vpkg_json_contents << '    "dependencies": [\n'
-
-    for i, dep in manifest.dependencies {
-        vpkg_json_contents << '        "${dep}"'
-
-        if i != 0 && i != manifest.dependencies.len {
-            vpkg_json_contents << ','
-        }
-
-        vpkg_json_contents << '\n'
-    }
-    vpkg_json_contents << '    ]\n'
-    vpkg_json_contents << '}' 
-
-    return vpkg_json_contents.join('')
+    return vpkg_json.contents.str()
 }
 
 fn manifest_to_vmod(manifest PkgManifest, dir string) {
