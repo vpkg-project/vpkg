@@ -11,6 +11,69 @@ pub fn (vpkg Vpkg) migrate_manifest() {
     migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
 }
 
+fn (vpkg Vpkg) test_package() {
+    mut pwd_var := ''
+    mut separator := '/'
+
+    $if linux {
+        pwd_var = '\$PWD'
+        separator = '/'
+    } $else {
+        pwd_var = '%cd%'
+        separator = '\\'
+    }
+
+    package_path := filepath.join(pwd_var, '..' + separator)
+    package_name := os.filename(os.getwd())
+    mut files := []string
+
+    if os.exists('${package_name}_test.v') {
+        files << '${package_name}_test.v'
+    }
+
+    if 'files' in vpkg.options {
+        files << vpkg.options['files'].split(',')
+    }
+
+    for file in files {
+        if !os.exists(file) {
+            println('Test file/folder ${file} is not present.')
+            return
+        }
+    }
+
+    files_joined := files.join(' ')
+    os.system('v -user_mod_path ${package_path} test ${files_joined}')
+
+    for file in files {
+        mut base_exec_name := ''
+
+        if os.is_dir(file) {
+            folder_contents := os.ls(file) or { return }
+
+            for f in folder_contents {
+                base_exec_name = filepath.join(os.getwd(), file, f.all_before('.v'))
+                if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { continue }
+
+                $if windows {
+                    base_exec_name = base_exec_name + '.exe'
+                }
+ 
+                os.rm(base_exec_name)
+            }
+        } else {
+            base_exec_name = filepath.join(os.getwd(), file.all_before('.v'))
+            if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { continue }
+
+            $if windows {
+                base_exec_name = base_exec_name + '.exe'
+            }
+
+            os.rm(base_exec_name)
+        }
+    }
+}
+
 pub fn (vpkg Vpkg) create_manifest_file() {
     pkg_name := filepath.filename(vpkg.dir)
     
@@ -188,12 +251,14 @@ fn (vpkg Vpkg) show_help() {
     println('info                                       Show project\'s package information.')
     println('init [--format=vpkg|vmod]                  Creates a package manifest file into the current directory. Defaults to "vpkg".')
     println('install                                    Reads the package manifest file and installs the necessary packages.')
-    println('migrate manifest [--format=vpkg|vmod]      Migrate manifest file to a specified format.')
+    println('migrate manifest                           Migrate manifest file to a specified format.')
     println('remove [packages]                          Removes packages')
     println('update                                     Updates packages.')
     println('version                                    Prints the version of this program.')
+    println('test                                       Tests the current lib/app.')
 
     println('\nOPTIONS\n')
     println('--global, -g                               Installs the modules/packages into the `.vmodules` folder.')
     println('--force                                    Force download the packages.')
+    println('--files [file1,file2]                      Specifies other locations of test files (For "test" command)')
 }
