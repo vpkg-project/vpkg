@@ -1,7 +1,7 @@
 module api
 
 import (
-	http
+	net.http
 	net.urllib
 )
 
