@@ -52,6 +52,7 @@ pub fn (vpkg mut Vpkg) run(args []string) {
         'migrate' { if vpkg.unknown[0] == 'manifest' {vpkg.migrate_manifest()} else {vpkg.show_help()} }
         'update' { vpkg.update_packages() }
         'version' { vpkg.show_version() }
+        'test' { vpkg.test_package() }
         else { vpkg.show_help() }
     }
 }
