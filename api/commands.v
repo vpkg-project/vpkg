@@ -90,7 +90,7 @@ pub fn (vpkg Vpkg) create_manifest_file() {
             mw = new_vpkg_json()
         }
         else {}
-        }
+    }
 
     mw.write('name', pkg_name, false)
     mw.write('version', '1.0', false)
@@ -241,13 +241,12 @@ fn (vpkg Vpkg) show_version() {
 
 fn (vpkg Vpkg) show_help() {
     println('Usage: vpkg <COMMAND> [ARGS...] [options]')
-
     println('\nCOMMANDS\n')
 
     println('get [packages]                             Fetch and installs packages from the registry or the git repo.')
     println('help                                       Prints this help message.')
     println('info                                       Show project\'s package information.')
-    println('init [--format=vpkg|vmod]                  Creates a package manifest file into the current directory. Defaults to "vpkg".')
+    println('init                                       Creates a package manifest file into the current directory. Defaults to "vpkg".')
     println('install                                    Reads the package manifest file and installs the necessary packages.')
     println('migrate manifest                           Migrate manifest file to a specified format.')
     println('remove [packages]                          Removes packages')
@@ -258,5 +257,6 @@ fn (vpkg Vpkg) show_help() {
     println('\nOPTIONS\n')
     println('--global, -g                               Installs the modules/packages into the `.vmodules` folder.')
     println('--force                                    Force download the packages.')
+    println('--format [vpkg|vmod]                       Specifies file format used to init manifest. (For "migrate" and "init" commands)')
     println('--files [file1,file2]                      Specifies other locations of test files (For "test" command)')
 }
