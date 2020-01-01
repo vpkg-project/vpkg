@@ -35,7 +35,7 @@ fn sanitize_package_name(name string) string {
 }
 
 fn package_name(path_or_name string) string {
-    is_git := is_git_url(path_or_name)
+    is_git := is_url(path_or_name)
     mut pkg_name := path_or_name
 
     if is_git {
@@ -56,7 +56,7 @@ fn package_name(path_or_name string) string {
     return sanitize_package_name(pkg_name)
 }
 
-fn is_git_url(a string) bool {
+fn is_url(a string) bool {
     protocols := ['https://', 'git://']
 
     for protocol in protocols {
