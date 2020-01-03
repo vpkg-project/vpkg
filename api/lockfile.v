@@ -90,7 +90,7 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
         contents << '         "name": "${pkg.name}",'
         contents << '         "version": "${pkg.version}",'
         contents << '         "url": "${pkg.url}",'
-        contents << '         "method": "${pkg.method}"'
+        contents << '         "method": "${pkg.method}",'
         contents << '         "latest_commit": "${pkg.latest_commit}"'
 
         if i != lock.packages.len-1 {
