@@ -58,7 +58,8 @@ fn package_name(path_or_name string) string {
 }
 
 fn rm_test_execs(dir string) {
-    mut base_exec_name := filepath.join(os.getwd(), dir.all_before('.v'))
+    mut base_exec_name := ''
+    base_exec_name = filepath.join(os.getwd(), dir.all_before('.v'))
     if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { return }
 
     $if windows {
