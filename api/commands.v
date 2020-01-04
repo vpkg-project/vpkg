@@ -11,6 +11,22 @@ pub fn (vpkg Vpkg) migrate_manifest() {
     migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
 }
 
+pub fn (vpkg mut Vpkg) release_module_to_git() {
+    if 'inc' in vpkg.options {
+        state := if 'state' in vpkg.options { vpkg.options['state'] } else { '' }
+
+        vpkg.manifest.version = vpkg.manifest.manipulate_version(vpkg.options['inc'], state)
+        migrate_manifest_file(vpkg.dir, vpkg.manifest, identify_manifest_type(vpkg.manifest_file_path))
+    }
+
+    if vpkg.manifest.test_files.len != 0 {
+        vpkg.test_package()
+    }
+
+    println('Releasing ${vpkg.manifest.name} ${vpkg.manifest.version}...')
+    os.system('git tag -a v${vpkg.manifest.version}')
+}
+
 pub fn (vpkg Vpkg) test_package() {
     mut pwd_var := ''
     mut separator := '/'
