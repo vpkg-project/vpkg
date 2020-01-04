@@ -156,6 +156,18 @@ fn get_manifest_file_path(dir string) string {
     return ''
 }
 
+fn identify_manifest_type(path string) string {
+    if path.ends_with('v.mod') {
+        return 'vmod'
+    }
+
+    if path.ends_with('.vpkg.json') || path.ends_with('vpkg.json') {
+        return 'vpkg'
+    }
+
+    return ''
+}
+
 fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
     m_path := get_manifest_file_path(dir)
 

@@ -100,7 +100,7 @@ pub fn (vpkg Vpkg) create_manifest_file() {
     println('Package manifest file was created successfully.')
 }
 
-pub fn (vpkg Vpkg) install_packages(dir string) {
+pub fn (vpkg mut Vpkg) install_packages(dir string) {
     println('Installing packages')
     pkg_info := vpkg.manifest
     packages := pkg_info.dependencies
@@ -154,7 +154,7 @@ pub fn (vpkg Vpkg) update_packages() {
     print_status(updated_packages, 'updated')
 }
 
-pub fn (vpkg Vpkg) get_packages(packages []string, is_final bool) []InstalledPackage {
+pub fn (vpkg mut Vpkg) get_packages(packages []string, is_final bool) []InstalledPackage {
     mut installed_packages := []InstalledPackage
     mut lockfile := read_lockfile(vpkg.dir) or { return installed_packages }
     mut deps := []string
@@ -181,6 +181,18 @@ pub fn (vpkg Vpkg) get_packages(packages []string, is_final bool) []InstalledPac
     }
     
     if is_final {
+        for pkg in packages {
+            pkg_idx := vpkg.manifest.dependencies.index(pkg)
+
+            if pkg_idx != -1 {
+                vpkg.manifest.dependencies << pkg
+            }
+        }
+
+        if !('no-save' in vpkg.options) {
+            migrate_manifest_file(vpkg.dir, vpkg.manifest, identify_manifest_type(vpkg.manifest_file_path))
+        }
+
         lockfile.regenerate(installed_packages, false, vpkg.dir)
         print_status(installed_packages, 'installed')
     }
