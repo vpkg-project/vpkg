@@ -10,10 +10,11 @@ import (
 struct PkgManifest {
     name string
     author []string
-    version string
     test_files []string
     sources []string
     repo string
+mut:
+    version string
     dependencies []string
 }
 
@@ -182,14 +183,44 @@ fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
     } 
 }
 
-fn convert_to_vpm(name string) string {
-    name_array := name.split('/')
-    mut vpm_pkg_name_array := []string
+fn (manifest PkgManifest) manipulate_version(@type string, state string) string {
+    ver := manifest.version.all_before('-')
+    mut ver_arr := ver.split('.')
+    mut selected_idx := 0
+    mut new_ver := ver
 
-    vpm_pkg_name_array << package_name(name_array[2])
-    vpm_pkg_name_array << package_name(name_array[3])
+    match @type {
+        'major' { selected_idx = 0 }
+        'minor' { selected_idx = 1 }
+        'patch' { selected_idx = 2 }
+        else {}
+    }
 
-    return vpm_pkg_name_array.join('.')
+    if selected_idx > ver_arr.len {
+        ver_arr << '0'
+    }
+
+    ver_arr[selected_idx] = (ver_arr[0].int() + 1).str()
+
+    for i := 0; i < ver_arr.len; i++ {
+        if i > selected_idx {
+            ver_arr[i] = '0'
+        }
+
+        new_ver += ver_arr[i]
+        
+        if i < ver_arr.len-1 {
+            new_ver += '.'
+        }
+    }
+
+    if state.len != 0 {
+        new_ver += '-${state}'
+    } else {
+        new_ver += manifest.version.all_after(ver)
+    }
+
+    return new_ver
 }
 
 fn (manifest PkgManifest) to_vmod() string {
