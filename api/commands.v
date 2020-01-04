@@ -46,30 +46,13 @@ fn (vpkg Vpkg) test_package() {
     os.system('v -user_mod_path ${package_path} test ${files_joined}')
 
     for file in files {
-        mut base_exec_name := ''
-
         if os.is_dir(file) {
             folder_contents := os.ls(file) or { return }
-
             for f in folder_contents {
-                base_exec_name = filepath.join(os.getwd(), file, f.all_before('.v'))
-                if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { continue }
-
-                $if windows {
-                    base_exec_name = base_exec_name + '.exe'
+                rm_test_execs(filepath.join(file, f))
                 }
- 
-                os.rm(base_exec_name)
-            }
         } else {
-            base_exec_name = filepath.join(os.getwd(), file.all_before('.v'))
-            if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { continue }
-
-            $if windows {
-                base_exec_name = base_exec_name + '.exe'
-            }
-
-            os.rm(base_exec_name)
+            rm_test_execs(file)
         }
     }
 }

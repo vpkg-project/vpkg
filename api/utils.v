@@ -3,6 +3,7 @@ module api
 import (
     os
     net.urllib
+    filepath
 )
 
 fn delete_content(path string) {
@@ -54,6 +55,17 @@ fn package_name(path_or_name string) string {
     }
 
     return sanitize_package_name(pkg_name)
+}
+
+fn rm_test_execs(dir string) {
+    mut base_exec_name := filepath.join(os.getwd(), dir.all_before('.v'))
+    if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { return }
+
+    $if windows {
+        base_exec_name = base_exec_name + '.exe'
+    }
+
+    os.rm(base_exec_name)
 }
 
 fn is_url(a string) bool {
