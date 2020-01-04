@@ -6,7 +6,7 @@ import (
 )
 
 const (
-    Version = '0.6'
+    Version = '0.7'
     GlobalModulesDir = os.home_dir() + '.vmodules'
 )
 
@@ -53,6 +53,7 @@ pub fn (vpkg mut Vpkg) run(args []string) {
         'update' { vpkg.update_packages() }
         'version' { vpkg.show_version() }
         'test' { vpkg.test_package() }
+        'release' { vpkg.release_module_to_git() }
         else { vpkg.show_help() }
     }
 }

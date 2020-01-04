@@ -70,7 +70,7 @@ pub fn (vpkg Vpkg) test_package() {
             folder_contents := os.ls(file) or { return }
             for f in folder_contents {
                 rm_test_execs(filepath.join(file, f))
-                }
+            }
         } else {
             rm_test_execs(file)
         }
@@ -261,14 +261,17 @@ fn (vpkg Vpkg) show_help() {
     println('init                                       Creates a package manifest file into the current directory. Defaults to "vpkg".')
     println('install                                    Reads the package manifest file and installs the necessary packages.')
     println('migrate manifest                           Migrate manifest file to a specified format.')
+    println('release                                    Release a new version of the module.')
     println('remove [packages]                          Removes packages')
-    println('update                                     Updates packages.')
-    println('version                                    Prints the version of this program.')
     println('test                                       Tests the current lib/app.')
+    println('update                                     Updates the packages.')
+    println('version                                    Prints the version of this program.')
 
     println('\nOPTIONS\n')
-    println('--global, -g                               Installs the modules/packages into the `.vmodules` folder.')
+    println('--files [file1,file2]                      Specifies other locations of test files (For "test" command)')
     println('--force                                    Force download the packages.')
     println('--format [vpkg|vmod]                       Specifies file format used to init manifest. (For "migrate" and "init" commands)')
-    println('--files [file1,file2]                      Specifies other locations of test files (For "test" command)')
+    println('--global, -g                               Installs the modules/packages into the ".vmodules" folder.')
+    println('--inc [major|minor|patch]                  Increments the selected version of the module/package. (For "release" command)')
+    println('--state [state_name]                       Indicates the state of the release (alpha, beta, fix) (For "release" command)')
 }
