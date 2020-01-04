@@ -11,7 +11,7 @@ pub fn (vpkg Vpkg) migrate_manifest() {
     migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
 }
 
-fn (vpkg Vpkg) test_package() {
+pub fn (vpkg Vpkg) test_package() {
     mut pwd_var := ''
     mut separator := '/'
 
@@ -24,7 +24,7 @@ fn (vpkg Vpkg) test_package() {
     }
 
     package_path := filepath.join(pwd_var, '..' + separator)
-    package_name := os.filename(os.getwd())
+    package_name := filepath.filename(os.getwd())
     mut files := []string
 
     if os.exists('${package_name}_test.v') {
@@ -33,6 +33,10 @@ fn (vpkg Vpkg) test_package() {
 
     if 'files' in vpkg.options {
         files << vpkg.options['files'].split(',')
+    }
+
+    if vpkg.manifest.test_files.len != 0 {
+        files << vpkg.manifest.test_files
     }
 
     for file in files {
@@ -59,8 +63,6 @@ fn (vpkg Vpkg) test_package() {
 
 pub fn (vpkg Vpkg) create_manifest_file() {
     pkg_name := filepath.filename(vpkg.dir)
-    
-    mut pkg_manifest_contents := []string
     mut manifest_filename := 'vpkg.json'
     mut mw := new_vpkg_json()
 
@@ -69,20 +71,19 @@ pub fn (vpkg Vpkg) create_manifest_file() {
             mw = new_vmod()
             manifest_filename = 'v.mod'
         }
-        'vpkg' {
-            mw = new_vpkg_json()
-        }
+        'vpkg' { mw = new_vpkg_json() }
         else {}
     }
 
     mw.write('name', pkg_name, false)
-    mw.write('version', '1.0', false)
+    mw.write('version', '1.0.0', false)
 
     if vpkg.options['format'] == 'vmod' {
         mw.write_arr('deps', [], false)
     } else {
         mw.write_arr('author', ['Your Author Name <author@example.com>'], false)
         mw.write('repo', 'https://github.com/<your-username>/<your-repo>', false)
+        mw.write_arr('test_files', [], false)
         mw.write_arr('dependencies', [], false)
     }
 
