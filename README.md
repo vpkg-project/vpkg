@@ -54,10 +54,10 @@ Use vpkg as a module that you can use to integrate into your own programs. Creat
 // install.v
 module main
 
-import vpkg.api // or import nedpals.vpkg.api
+import vpkg.api as vpkg // or import nedpals.vpkg.api as vpkg
 
 fn main() {
-	mut inst := api.new_vpkg('.')
+	mut inst := vpkg.new('.')
 	inst.run(['install'])
 
 	os.system('rm ${os.executable()}')
