@@ -23,7 +23,7 @@ v -prod .
 ```
 
 ## Running your own registry
-Use the provided [registry server template](https://github.com/vpkg-project/registry-template) to start running your own registry server. Just modify `registry.json` and use any http or web library of your choice to get up and running.
+Use the provided [registry server template](https://github.com/vpkg-project/registry-template) to start running your own registry server. Just modify `registry.json` and use any HTTP or web library of your choice to get up and running.
 
 ## Commands
 ```
@@ -54,7 +54,7 @@ OPTIONS
 ```
 
 ## vpkg API
-Use vpkg as a module that you can use to integrate into your own programs. Create your own VSH scripts, automate installation, and more without needing for a separate CLI program.
+Use vpkg as a module that you can use to integrate into your own programs. Create your own VSH scripts, automated installation, and more without needing a separate CLI program.
 
 ```v
 // install.v
@@ -63,10 +63,10 @@ module main
 import vpkg.api as vpkg // or import nedpals.vpkg.api as vpkg
 
 fn main() {
-	mut inst := vpkg.new('.')
-	inst.run(['install'])
+    mut inst := vpkg.new('.')
+    inst.run(['install'])
 
-	os.system('rm ${os.executable()}')
+    os.system('rm ${os.executable()}')
 }
 
 ```
@@ -84,7 +84,7 @@ vargs@fc193513733c2ed99467f5d903a824ea9087ed52
 - ability to publish packages into VPM and the vpkg registry.
 - options for debugging output
 - error handling for better bug tracking and report
-- subversion / svn support
+- subversion/svn support
 
 
 ## Copyright
