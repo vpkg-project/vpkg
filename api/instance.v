@@ -12,15 +12,15 @@ const (
 
 pub struct Vpkg {
 pub mut:
-    command string
-    options map[string]string
-    unknown []string
-    dir string
-    install_dir string
+    command            string
+    options            map[string]string
+    unknown            []string
+    dir                string
+    install_dir        string
     manifest_file_path string
-    manifest PkgManifest
-    is_global bool
-    sources []string
+    manifest           PkgManifest
+    is_global          bool
+    sources            []string
 }
 
 pub fn new(dir string) Vpkg {

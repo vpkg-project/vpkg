@@ -199,8 +199,7 @@ pub fn (vpkg mut Vpkg) get_packages(packages []string, is_final bool) []Installe
     
     if is_final {
         for pkg in packages {
-            is_pkg_exist := pkg in vpkg.manifest.dependencies
-            if !is_pkg_exist {
+            if !vpkg.manifest.is_exist(pkg) {
                 vpkg.manifest.dependencies << pkg
             }
         }

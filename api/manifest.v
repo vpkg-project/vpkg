@@ -8,51 +8,51 @@ import (
 )
 
 struct PkgManifest {
-    name string
-    author []string
-    test_files []string
-    sources []string
-    repo string
+    name         string
+    author       []string
+    test_files   []string
+    sources      []string
+    repo         string
 mut:
-    version string
+    version      string
     dependencies []string
 }
 
 struct ManifestWriter {
-    key_quotes string
-    val_quotes string
-    opening string
-    closing string
-    colon string
-    comma string
+    key_quotes   string
+    val_quotes   string
+    opening      string
+    closing      string
+    colon        string
+    comma        string
     spaces_count int
 pub mut:
-    contents strings.Builder
+    contents     strings.Builder
 }
 
 fn new_vpkg_json() ManifestWriter {
     return ManifestWriter{
-        key_quotes: '"',
-        val_quotes: '"',
-        opening: '{',
-        closing: '}',
-        colon: ':',
-        comma: ',',
+        key_quotes  : '"',
+        val_quotes  : '"',
+        opening     : '{',
+        closing     : '}',
+        colon       : ':',
+        comma       : ',',
         spaces_count: 4,
-        contents: strings.new_builder(1024)
+        contents    : strings.new_builder(1024)
     }
 }
 
 fn new_vmod() ManifestWriter {
     return ManifestWriter{
-        key_quotes: '',
-        val_quotes: '\'',
-        opening: 'Module {',
-        closing: '}',
-        colon: ':',
-        comma: ',',
+        key_quotes  : '',
+        val_quotes  : '\'',
+        opening     : 'Module {',
+        closing     : '}',
+        colon       : ':',
+        comma       : ',',
         spaces_count: 4,
-        contents: strings.new_builder(1024)
+        contents    : strings.new_builder(1024)
     }
 }
 
@@ -245,6 +245,10 @@ fn (manifest PkgManifest) to_vpkg_json() string {
     vpkg_json.close()
 
     return vpkg_json.contents.str()
+}
+
+fn (manifest PkgManifest) is_exist(pkg_name string) bool {
+    return pkg_name in manifest.dependencies
 }
 
 fn manifest_to_vmod(manifest PkgManifest, dir string) {

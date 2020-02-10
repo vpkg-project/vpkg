@@ -6,19 +6,19 @@ import (
 )
 
 struct Package {
-    name string = ''
-    url string = ''
+    name   string = ''
+    url    string = ''
     method string = ''
 }
 
 struct InstalledPackage {
 mut:
-    name string
-    path string
-    version string
-    url string
+    name          string
+    path          string
+    version       string
+    url           string
     latest_commit string
-    method string
+    method        string
 }
 
 fn fetch_from_sources(name string, install_location string, sources []string) InstalledPackage {
@@ -61,7 +61,7 @@ pub fn (vpkg Vpkg) fetch_package(path_or_name string) InstalledPackage {
         installed_path := filepath.join(module_install_path, pkg_name)
         fetch_from_path := FetchMethod{ dir: installed_path }
 
-        println('${pkg_name} is already installed.')
+        println('\n${pkg_name} is already installed.')
         
         pkg_manifest := load_manifest_file(installed_path)
         data = InstalledPackage{
