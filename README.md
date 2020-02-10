@@ -63,8 +63,8 @@ module main
 import vpkg.api as vpkg // or import nedpals.vpkg.api as vpkg
 
 fn main() {
-    mut inst := vpkg.new('.')
-    inst.run(['install'])
+	  mut inst := vpkg.new('.')
+	  inst.run(['install'])
 
     os.system('rm ${os.executable()}')
 }
