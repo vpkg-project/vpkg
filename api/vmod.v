@@ -166,14 +166,14 @@ fn (s mut VModScanner) scan() Token {
 
     s.skip_whitespace()
 
-    char := s.text[s.pos]
+    char_ := s.text[s.pos]
     mut next_char := `\0`
 
     if s.pos + 1 < s.text.len {
         next_char = s.text[s.pos + 1]
     }
 
-    if is_name_alpha(char) {
+    if is_name_alpha(char_) {
         name := s.create_identifier()
         _next := if s.pos + 1 < s.text.len { s.text[s.pos + 1] } else { `\0` }
 
@@ -195,7 +195,7 @@ fn (s mut VModScanner) scan() Token {
         }
     }
 
-    match char {
+    match char_ {
         `{` {
             if s.inside_text { return s.scan() }
             return tokenize(.lcbr, '')
