@@ -1,11 +1,10 @@
 {
     "name": "vpkg",
     "version": "0.6",
-    "author": ["Ned Palacios <npdoesmc@gmail.com>"],
-    "repo": "https://github.com/nedpals/vpkg",
-    "sources": [
-        "https://vpkg-project.github.io/registry/"
+    "author": [
+        "Ned Palacios <npdoesmc@gmail.com>"
     ],
+    "repo": "https://github.com/nedpals/vpkg",
     "dependencies": [
         "https://github.com/nedpals/vargs.git"
     ]
