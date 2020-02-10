@@ -12,7 +12,7 @@ Bringing the best of dependency management on V.
 
 ## Installation
 ### Pre-built binaries
-Install vpkg by downloading the pre-built binaries available found below the release notes of the [latest release](https://github.com/vpkg/releases).
+Install vpkg by downloading the pre-built binaries available found below the release notes of the [latest release](https://github.com/vpkg-project/vpkg/releases).
 
 ### Building from Source
 For those platforms which aren't included in the available pre-built binaries or would like to compile it by yourself, just clone this repository and build directly with the V compiler with the `-prod` flag.
