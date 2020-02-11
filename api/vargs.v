@@ -2,7 +2,7 @@
  * vargs 0.4.2
  * https://github.com/nedpals/vargs
  * 
- * (c) 2019 Ned Palacios and its contributors.
+ * (c) 2020 Ned Palacios and its contributors.
  */
 
 module api

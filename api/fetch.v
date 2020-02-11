@@ -65,11 +65,11 @@ pub fn (vpkg Vpkg) fetch_package(path_or_name string) InstalledPackage {
         
         pkg_manifest := load_manifest_file(installed_path)
         data = InstalledPackage{
-            name: if pkg_manifest.name.len != 0 { pkg_manifest.name } else { pkg_name },
-            path: installed_path,
-            version: if pkg_manifest.version.len != 0 { pkg_manifest.version } else { fetch_from_path.check_version('git') },
-            latest_commit: fetch_from_path.check_version('git'),
-            method: ''
+            name         : if pkg_manifest.name.len != 0 { pkg_manifest.name } else { pkg_name }
+            path         : installed_path
+            version      : if pkg_manifest.version.len != 0 { pkg_manifest.version } else { fetch_from_path.check_version('git') }
+            latest_commit: fetch_from_path.check_version('git')
+            method       : ''
         }
     } else {
         if is_url(path_or_name) {

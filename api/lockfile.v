@@ -60,22 +60,22 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
                 curr_lock_pkg := lock.packages[package_idx]
 
                 lock.packages[package_idx] = InstalledPackage{
-                    name: package.name,
-                    path: package.path,
-                    version: package.version,
-                    url: if package.url == '' || package.url == curr_lock_pkg.url { curr_lock_pkg.url } else { package.url },
-                    method: if package.method == '' || package.method == curr_lock_pkg.method { curr_lock_pkg.method } else { package.method },
+                    name         : package.name
+                    path         : package.path
+                    version      : package.version
+                    url          : if package.url == '' || package.url == curr_lock_pkg.url { curr_lock_pkg.url } else { package.url }
+                    method       : if package.method == '' || package.method == curr_lock_pkg.method { curr_lock_pkg.method } else { package.method }
                     latest_commit: package.latest_commit
                 }
             }
         } else {
             if !remove {
                 lock.packages << InstalledPackage{
-                    name: package.name,
-                    path: package.path,
-                    version: package.version,
-                    url: package.url,
-                    method: package.method,
+                    name         : package.name
+                    path         : package.path
+                    version      : package.version
+                    url          : package.url
+                    method       : package.method
                     latest_commit: package.latest_commit
                 }
             }
@@ -119,4 +119,3 @@ fn create_lockfile(dir string) Lockfile {
 
     return contents
 }
-
