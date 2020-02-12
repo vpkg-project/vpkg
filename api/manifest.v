@@ -187,7 +187,7 @@ fn (manifest PkgManifest) manipulate_version(@type string, state string) string 
     ver := manifest.version.all_before('-')
     mut ver_arr := ver.split('.')
     mut selected_idx := 0
-    mut new_ver := ver
+    mut new_ver := ''
 
     match @type {
         'major' { selected_idx = 0 }
@@ -196,23 +196,19 @@ fn (manifest PkgManifest) manipulate_version(@type string, state string) string 
         else {}
     }
 
-    if selected_idx > ver_arr.len {
+    for selected_idx > ver_arr.len-1 {
         ver_arr << '0'
     }
 
-    ver_arr[selected_idx] = (ver_arr[0].int() + 1).str()
+    ver_arr[selected_idx] = (ver_arr[selected_idx].int() + 1).str()
 
     for i := 0; i < ver_arr.len; i++ {
         if i > selected_idx {
             ver_arr[i] = '0'
         }
-
-        new_ver += ver_arr[i]
-        
-        if i < ver_arr.len-1 {
-            new_ver += '.'
-        }
     }
+
+    new_ver = ver_arr.join('.')
 
     if state.len != 0 {
         new_ver += '-${state}'
