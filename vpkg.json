@@ -6,6 +6,6 @@
     ],
     "repo": "https://github.com/nedpals/vpkg",
     "dependencies": [
-        "https://github.com/nedpals/vargs.git"
+        "https://github.com/vpkg-project/vpkg.git"
     ]
 }
