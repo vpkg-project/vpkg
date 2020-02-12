@@ -246,7 +246,7 @@ pub fn (vpkg Vpkg) show_package_information() {
 fn (vpkg Vpkg) show_version() {
     println('vpkg ${Version} for ${os.user_os()}')
     println('Repo: https://github.com/vpkg-project/vpkg \n')
-    println('2020 (c) Ned Palacios and it\'s contributors.')
+    println('2020 (c) vpkg developers and it\'s contributors.')
 }
 
 fn (vpkg Vpkg) show_help() {
