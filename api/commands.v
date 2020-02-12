@@ -246,7 +246,7 @@ pub fn (vpkg Vpkg) show_package_information() {
 fn (vpkg Vpkg) show_version() {
     println('vpkg ${Version} for ${os.user_os()}')
     println('Repo: https://github.com/vpkg-project/vpkg \n')
-    println('2020 (c) Ned Palacios and it\'s contributors.')
+    println('2020 (c) vpkg developers and it\'s contributors.')
 }
 
 fn (vpkg Vpkg) show_help() {
@@ -254,7 +254,7 @@ fn (vpkg Vpkg) show_help() {
     println('\nCOMMANDS\n')
 
     println('get [packages]                             Fetch and installs packages from the registry or the git repo.')
-    println('help                                       Prints this help message.')
+    println('help                                       Show this help message.')
     println('info                                       Show project\'s package information.')
     println('init                                       Creates a package manifest file into the current directory. Defaults to "vpkg".')
     println('install                                    Reads the package manifest file and installs the necessary packages.')
@@ -263,7 +263,7 @@ fn (vpkg Vpkg) show_help() {
     println('remove [packages]                          Removes packages')
     println('test                                       Tests the current lib/app.')
     println('update                                     Updates the packages.')
-    println('version                                    Prints the version of this program.')
+    println('version                                    Show the version of this program.')
 
     println('\nOPTIONS\n')
     println('--files [file1,file2]                      Specifies other locations of test files (For "test" command)')
