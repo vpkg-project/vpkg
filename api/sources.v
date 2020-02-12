@@ -6,7 +6,7 @@ import (
 )
 
 struct Registry {
-    base_url string
+    base_url           string
     registry_file_path string = '/registry.json'
 }
 
@@ -16,7 +16,7 @@ struct RegistryRepo {
 
 fn new_registry(base_url string, registry_file_path string) Registry {
     return Registry{
-        base_url: base_url,
+        base_url: base_url
         registry_file_path: registry_file_path
     }
 }
@@ -44,14 +44,14 @@ fn (reg Registry) search(name string) Package {
 }
 
 struct Vpm {
-	base_url string = 'https://vpm.best'
+	base_url   string = 'https://vpm.best'
 	jsmod_path string = '/jsmod'
 }
 
 struct VpmPackage {
-    id int
-    name string
-    url string
+    id           int
+    name         string
+    url          string
     nr_downloads int
 }
 
@@ -71,8 +71,8 @@ fn (vpm Vpm) search(name string) Package {
     }
 
     return Package{
-        name: repo.name,
-        url: repo.url,
+        name  : repo.name
+        url   : repo.url
         method: 'git'
     }
 }

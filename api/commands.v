@@ -159,10 +159,10 @@ pub fn (vpkg Vpkg) update_packages() {
 
         if current_hash != latest_hash {
             updated_packages << InstalledPackage{
-                name: pkg.name,
-                version: if pkg_manifest.version.len != 0 { pkg_manifest.version } else { latest_hash },
-                url: pkg.url,
-                method: pkg.method
+                name   : pkg.name
+                version: if pkg_manifest.version.len != 0 { pkg_manifest.version } else { latest_hash }
+                url    : pkg.url
+                method : pkg.method
             }
         }
     }
@@ -246,7 +246,7 @@ pub fn (vpkg Vpkg) show_package_information() {
 fn (vpkg Vpkg) show_version() {
     println('vpkg ${Version} for ${os.user_os()}')
     println('Repo: https://github.com/vpkg-project/vpkg \n')
-    println('2019 (c) Ned Palacios and it\'s contributors.')
+    println('2020 (c) Ned Palacios and it\'s contributors.')
 }
 
 fn (vpkg Vpkg) show_help() {
