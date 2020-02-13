@@ -1,4 +1,4 @@
-# vpkg 
+# vpkg
 vpkg is an alternative package manager written on [V](https://github.com/vlang/v) for V.
 
 ## Features
@@ -32,25 +32,25 @@ Usage: vpkg <COMMAND> [ARGS...] [options]
 COMMANDS
 
 get [packages]                             Fetch and installs packages from the registry or the git repo.
-help                                       Prints this help message.
+help                                       Show this help message.
 info                                       Show project's package information.
-init                                       Creates a package manifest file into the current directory. Defaults to "vpkg".
-install                                    Reads the package manifest file and installs the necessary packages.
+init                                       Create a package manifest file into the current directory. Defaults to "vpkg".
+install                                    Read the package manifest file and installs the necessary packages.
 migrate manifest                           Migrate manifest file to a specified format.
 release                                    Release a new version of the module.
-remove [packages]                          Removes packages
-test                                       Tests the current lib/app.
-update                                     Updates the packages.
-version                                    Prints the version of this program.
+remove [packages]                          Remove packages
+test                                       Test the current lib/app.
+update                                     Update the packages.
+version                                    Show the version of this program.
 
 OPTIONS
 
---files [file1,file2]                      Specifies other locations of test files (For "test" command)
+--files [file1,file2]                      Specifiy other locations of test files (For "test" command)
 --force                                    Force download the packages.
---format [vpkg|vmod]                       Specifies file format used to init manifest. (For "migrate" and "init" commands)
---global, -g                               Installs the modules/packages into the ".vmodules" folder.
---inc [major|minor|patch]                  Increments the selected version of the module/package. (For "release" command)
---state [state_name]                       Indicates the state of the release (alpha, beta, fix) (For "release" command)
+--format [vpkg|vmod]                       Specifiy file format used to init manifest. (For "migrate" and "init" commands)
+--global, -g                               Install the modules/packages into the ".vmodules" folder.
+--inc [major|minor|patch]                  Increment the selected version of the module/package. (For "release" command)
+--state [state_name]                       Indicate the state of the release (alpha, beta, fix) (For "release" command)
 ```
 
 ## vpkg API
