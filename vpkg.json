@@ -5,7 +5,5 @@
         "Ned Palacios <npdoesmc@gmail.com>"
     ],
     "repo": "https://github.com/nedpals/vpkg",
-    "dependencies": [
-        "https://github.com/vpkg-project/vpkg.git"
-    ]
+    "dependencies": []
 }
