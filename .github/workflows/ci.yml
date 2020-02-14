@@ -11,5 +11,9 @@ jobs:
             - uses: actions/checkout@v1
             - name: Compiling
               env:
-                  VFLAGS: -show_c_cmd -cg -statsdho
+                  VFLAGS: -show_c_cmd -cg -stats
               run: v version; v .
+            - name: Testing
+              env:
+                  VFLAGS: -show_c_cmd -cg -stats
+              run: v test tests
