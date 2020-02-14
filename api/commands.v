@@ -238,18 +238,17 @@ pub fn (vpkg mut Vpkg) get_packages(packages []string, is_final bool) []Installe
 
 pub fn (vpkg Vpkg) link(dir string) {
     name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {filepath.filename(dir)}
-    vmodules_path := os.home_dir() + '.vmodules'
+    vmodules_path := filepath.join(os.home_dir(), '.vmodules')
     target := filepath.join(vmodules_path, name)
     os.symlink(dir, target) or {
         if C.errno == 2 {
-            println('.vmodules folder is not exist')
             println('Creating $target')
             os.mkdir(vmodules_path) or { return }
             vpkg.link(dir)
         }
         return
     }
-    println('Successfully linked this module as $name')
+    println('Successfully linked the module as $name')
 }
 
 pub fn (vpkg Vpkg) show_package_information() {
