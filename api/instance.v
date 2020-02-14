@@ -28,7 +28,7 @@ import filepath
 
 const (
     Version = '0.7.1'
-    GlobalModulesDir = filepath.join(os.home_dir(), '.vmodules')
+    GlobalModulesDir = os.home_dir() + '.vmodules'
 )
 
 pub struct Vpkg {
