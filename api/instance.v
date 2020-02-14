@@ -68,6 +68,7 @@ pub fn (vpkg mut Vpkg) run(args []string) {
         'help'    { vpkg.show_help() }
         'info'    { vpkg.show_package_information() }
         'init'    { vpkg.create_manifest_file() }
+        'link'    { vpkg.link(vpkg.dir) }
         'install' { vpkg.install_packages(vpkg.dir) }
         'remove'  { vpkg.remove_packages(vpkg.unknown) }
         'migrate' { if vpkg.unknown[0] == 'manifest' {vpkg.migrate_manifest()} else {vpkg.show_help()} }
