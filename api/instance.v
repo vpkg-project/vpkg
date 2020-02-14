@@ -28,7 +28,7 @@ import filepath
 
 const (
     Version = '0.7.1'
-    GlobalModulesDir = os.home_dir() + '.vmodules'
+    GlobalModulesDir = filepath.join(os.home_dir(), '.vmodules')
 )
 
 pub struct Vpkg {
@@ -73,6 +73,7 @@ pub fn (vpkg mut Vpkg) run(args []string) {
         'remove'  { vpkg.remove_packages(vpkg.unknown) }
         'migrate' { if vpkg.unknown[0] == 'manifest' {vpkg.migrate_manifest()} else {vpkg.show_help()} }
         'update'  { vpkg.update_packages() }
+        'unlink'  { vpkg.unlink(vpkg.dir) }
         'version' { vpkg.show_version() }
         'test'    { vpkg.test_package() }
         'release' { vpkg.release_module_to_git() }
