@@ -1,4 +1,4 @@
-# vpkg
+# vpkg ![Latest version][githubBadge] ![Build status][workflowBadge]
 vpkg is an alternative package manager written on [V](https://github.com/vlang/v) for V.
 
 ## Features
@@ -89,3 +89,6 @@ vargs@fc193513733c2ed99467f5d903a824ea9087ed52
 
 ## Copyright
 (C) 2019 [Ned Palacios](https://github.com/nedpals)
+
+[githubBadge]: https://img.shields.io/github/v/release/vpkg-project/vpkg?include_prereleases
+[workflowBadge]: https://img.shields.io/github/workflow/status/vpkg-project/vpkg/CI
