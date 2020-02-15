@@ -17,3 +17,5 @@ jobs:
               env:
                   VFLAGS: -show_c_cmd -cg -stats
               run: v test tests
+            - name: Checking `vpkg` description
+              run: v run ./.github/workflows/check-desc.v
