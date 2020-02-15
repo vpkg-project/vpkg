@@ -133,3 +133,11 @@ fn print_status(packages []InstalledPackage, status_type string) {
 
     println('${packages.len} ${package_word} ${desc_word} ${status_type} successfully.')
 }
+
+fn is_empty_str(str string) bool {
+	for bite in str.bytes() {
+		is_empty := (bite >= 7 && bite <= 13) || bite == 32
+        if !is_empty { return false }
+	}
+	return true
+}

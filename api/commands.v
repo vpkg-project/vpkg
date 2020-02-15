@@ -236,6 +236,29 @@ pub fn (vpkg mut Vpkg) get_packages(packages []string, is_final bool) []Installe
     return installed_packages
 }
 
+pub fn (vpkg Vpkg) link(dir string) {
+    name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {filepath.filename(dir)}
+    target := filepath.join(GlobalModulesDir, name)
+    os.symlink(dir, target) or {
+        if C.errno == 2 {
+            os.mkdir(GlobalModulesDir) or { return }
+        }
+        vpkg.link(dir)
+    }
+    println('Successfully linked the module as $name')
+}
+
+pub fn (vpkg Vpkg) unlink(dir string) {
+    name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {filepath.filename(dir)}
+    target := filepath.join(GlobalModulesDir, name)
+    if os.exists(target) {
+        os.rm(filepath.join(GlobalModulesDir, name))
+    }
+    if !os.exists(target) {
+        println('Successfully unlinked $name')
+    }
+}
+
 pub fn (vpkg Vpkg) show_package_information() {
     pkg_info := vpkg.manifest
     lockfile := read_lockfile(vpkg.dir) or { return }
@@ -279,11 +302,13 @@ fn (vpkg Vpkg) show_help() {
     println('info                                       Show project\'s package information.')
     println('init                                       Create a package manifest file into the current directory. Defaults to "vpkg".')
     println('install                                    Read the package manifest file and installs the necessary packages.')
+    println('link                                       Symlink current module/package to ".vmodules" folder.')
     println('migrate manifest                           Migrate manifest file to a specified format.')
     println('release                                    Release a new version of the module.')
     println('remove [packages]                          Remove packages')
     println('test                                       Test the current lib/app.')
     println('update                                     Update the packages.')
+    println('unlink                                     Remove the symlink of current module/package from ".vmodules" folder.')
     println('version                                    Show the version of this program.')
 
     println('\nOPTIONS\n')
