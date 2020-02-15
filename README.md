@@ -36,11 +36,13 @@ help                                       Show this help message.
 info                                       Show project's package information.
 init                                       Create a package manifest file into the current directory. Defaults to "vpkg".
 install                                    Read the package manifest file and installs the necessary packages.
+link                                       Symlink current module/package to ".vmodules" folder.
 migrate manifest                           Migrate manifest file to a specified format.
 release                                    Release a new version of the module.
 remove [packages]                          Remove packages
 test                                       Test the current lib/app.
 update                                     Update the packages.
+unlink                                     Remove the symlink of current module/package from ".vmodules" folder.
 version                                    Show the version of this program.
 
 OPTIONS
