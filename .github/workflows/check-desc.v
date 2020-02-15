@@ -1,6 +1,5 @@
 module main
 
-import filepath
 import os
 
 const (
