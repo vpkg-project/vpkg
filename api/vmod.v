@@ -75,7 +75,7 @@ fn tokenize(t_type Lexeme, val string) Token {
 }
 
 fn (s mut VModScanner) skip_whitespace() {
-	for s.pos < s.text.len-1 && s.text[s.pos].is_white() {
+	for s.pos < s.text.len-1 && s.text[s.pos].is_space() {
 		s.pos++
 	}
 }
