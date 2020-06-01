@@ -24,7 +24,6 @@
 module api
 
 import os
-import filepath
 
 struct Package {
     name   string = ''
@@ -71,15 +70,15 @@ fn fetch_from_sources(name string, install_location string, sources []string) In
 pub fn (vpkg Vpkg) fetch_package(path_or_name string) InstalledPackage {
     pkg_name := package_name(path_or_name)
     print('Fetching ${pkg_name}')
-    exists_on_vlib := os.exists(filepath.join(GlobalModulesDir, pkg_name))
-    exists_on_cwd := os.exists(filepath.join(vpkg.install_dir, pkg_name))
-    module_install_path := if exists_on_cwd && !vpkg.is_global { vpkg.install_dir } else { GlobalModulesDir }
-    install_location := if vpkg.is_global { GlobalModulesDir } else { vpkg.install_dir }
+    exists_on_vlib := os.exists(os.join_path(global_modules_dir, pkg_name))
+    exists_on_cwd := os.exists(os.join_path(vpkg.install_dir, pkg_name))
+    module_install_path := if exists_on_cwd && !vpkg.is_global { vpkg.install_dir } else { global_modules_dir }
+    install_location := if vpkg.is_global { global_modules_dir } else { vpkg.install_dir }
     mut data := InstalledPackage{}
 
 
     if (exists_on_vlib && vpkg.is_global) || (exists_on_cwd && !('force' in vpkg.options)) {
-        installed_path := filepath.join(module_install_path, pkg_name)
+        installed_path := os.join_path(module_install_path, pkg_name)
         fetch_from_path := FetchMethod{ dir: installed_path }
 
         println('\n${pkg_name} is already installed.')
@@ -97,7 +96,7 @@ pub fn (vpkg Vpkg) fetch_package(path_or_name string) InstalledPackage {
             fetch_from_url := FetchMethod{download_url: path_or_name, dir: install_location, args: []}
             data = fetch_from_url.dl_package(if 'method' in vpkg.options { vpkg.options['method'] } else {'git'})
         } else {
-            mut sources := []string
+            mut sources := []string{}
 
             if !('use-builtin' in vpkg.options) || vpkg.options['use-builtin'] != 'false' {
                 sources << ['vpm', 'https://vpkg-project.github.io/registry/']

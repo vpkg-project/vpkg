@@ -25,7 +25,6 @@ module api
 
 import os
 import net.urllib
-import filepath
 
 fn delete_content(path string) {
     os.rm(path)
@@ -80,7 +79,7 @@ fn package_name(path_or_name string) string {
 
 fn rm_test_execs(dir string) {
     mut base_exec_name := ''
-    base_exec_name = filepath.join(os.getwd(), dir.all_before('.v'))
+    base_exec_name = os.join_path(os.getwd(), dir.all_before('.v'))
     if !os.exists('${base_exec_name}.exe') || !os.exists(base_exec_name) { return }
 
     $if windows {
@@ -140,4 +139,9 @@ fn is_empty_str(str string) bool {
         if !is_empty { return false }
 	}
 	return true
+}
+
+fn dirname(path string) string {
+    path_s := path.split(os.path_separator)
+    return path_s[path_s.len-1]
 }

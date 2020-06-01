@@ -41,7 +41,7 @@ fn starts_with_hypen(v string) bool {
     return v.starts_with('-') || v.starts_with('--')
 }
 
-fn (v mut Args) insert_option(name string, val string) {
+fn (mut v Args) insert_option(name string, val string) {
     v.options[name] = if name in v.options {
         '${v.options[name]},${val}'
     } else {
@@ -51,7 +51,7 @@ fn (v mut Args) insert_option(name string, val string) {
 
 pub fn vargs_parse(a []string, start int) Args {
     args := a[start..a.len]
-    mut parsed := Args{'', map[string]string, []string}
+    mut parsed := Args{}
 
     for i, curr in args {
         next := if i+1 > args.len-1 { '' } else { args[i+1] }
@@ -91,7 +91,9 @@ pub fn (v Args) array_option(name string) []string {
 
 pub fn (v Args) str() string {
     mut opts := v.options.str().split_into_lines()
-    for i, el in opts { opts[i] = el.trim_space() }
+    for i, el in opts { 
+        opts[i] = el.trim_space()
+    }
     opts_str := opts.join(' ')
 
     return '\{ command: "${v.command}", options: ${opts_str}, unknown: ${v.unknown.str()} \}'

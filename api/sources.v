@@ -25,6 +25,7 @@ module api
 
 import net.http
 import net.urllib
+import json
 
 struct Registry {
     base_url           string

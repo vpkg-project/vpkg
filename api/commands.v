@@ -24,7 +24,6 @@
 module api
 
 import os
-import filepath
 
 pub fn (vpkg Vpkg) migrate_manifest() {
     m_type := if 'format' in vpkg.options { vpkg.options['format'] } else { 'vpkg' }
@@ -32,7 +31,7 @@ pub fn (vpkg Vpkg) migrate_manifest() {
     migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
 }
 
-pub fn (vpkg mut Vpkg) release_module_to_git() {
+pub fn (mut vpkg Vpkg) release_module_to_git() {
     if 'inc' in vpkg.options {
         state := if 'state' in vpkg.options { vpkg.options['state'] } else { '' }
 
@@ -60,9 +59,9 @@ pub fn (vpkg Vpkg) test_package() {
         separator = '\\'
     }
 
-    package_path := filepath.join(pwd_var, '..' + separator)
-    package_name := filepath.filename(os.getwd())
-    mut files := []string
+    package_path := os.join_path(pwd_var, '..' + separator)
+    package_name := dirname(os.getwd())
+    mut files := []string{}
 
     if os.exists('${package_name}_test.v') {
         files << '${package_name}_test.v'
@@ -90,7 +89,7 @@ pub fn (vpkg Vpkg) test_package() {
         if os.is_dir(file) {
             folder_contents := os.ls(file) or { return }
             for f in folder_contents {
-                rm_test_execs(filepath.join(file, f))
+                rm_test_execs(os.join_path(file, f))
             }
         } else {
             rm_test_execs(file)
@@ -99,7 +98,7 @@ pub fn (vpkg Vpkg) test_package() {
 }
 
 pub fn (vpkg Vpkg) create_manifest_file() {
-    pkg_name := filepath.filename(vpkg.dir)
+    pkg_name := dirname(vpkg.dir)
     mut manifest_filename := 'vpkg.json'
     mut mw := new_vpkg_json()
 
@@ -126,7 +125,7 @@ pub fn (vpkg Vpkg) create_manifest_file() {
 
     mw.close()
 
-    mut manifest_data := os.create(filepath.join(vpkg.dir, manifest_filename)) or {
+    mut manifest_data := os.create(os.join_path(vpkg.dir, manifest_filename)) or {
         eprintln('Package manifest file was not created successfully.')
         return
     }
@@ -138,7 +137,7 @@ pub fn (vpkg Vpkg) create_manifest_file() {
     println('Package manifest file was created successfully.')
 }
 
-pub fn (vpkg mut Vpkg) install_packages(dir string) {
+pub fn (mut vpkg Vpkg) install_packages(dir string) {
     println('Installing packages')
     pkg_info := vpkg.manifest
     packages := pkg_info.dependencies
@@ -146,7 +145,7 @@ pub fn (vpkg mut Vpkg) install_packages(dir string) {
 }
 
 pub fn (vpkg Vpkg) remove_packages(packages []string) {
-    mut removed_packages := []InstalledPackage
+    mut removed_packages := []InstalledPackage{}
     mut lockfile := read_lockfile(vpkg.dir) or {
         println(err)
         return
@@ -154,7 +153,7 @@ pub fn (vpkg Vpkg) remove_packages(packages []string) {
 
     for package in packages {
         pkg_name := if package.starts_with('v-') { package.all_after('v-') } else { package }
-        status := delete_package_contents(filepath.join(vpkg.install_dir, pkg_name))
+        status := delete_package_contents(os.join_path(vpkg.install_dir, pkg_name))
 
         if status { removed_packages << InstalledPackage{ name: package } }
     }
@@ -164,7 +163,7 @@ pub fn (vpkg Vpkg) remove_packages(packages []string) {
 }
 
 pub fn (vpkg Vpkg) update_packages() {    
-    mut updated_packages := []InstalledPackage
+    mut updated_packages := []InstalledPackage{}
     println('Fetching lockfile')
     mut lockfile := read_lockfile(vpkg.dir) or { return }
     println('Updating packages')
@@ -172,7 +171,7 @@ pub fn (vpkg Vpkg) update_packages() {
     for pkg in lockfile.packages {
         current_hash := if pkg.latest_commit.len != 0 { pkg.latest_commit } else { pkg.version }
         pkg_name := package_name(pkg.name)
-        pkg_location := filepath.join(vpkg.install_dir, pkg_name)
+        pkg_location := os.join_path(vpkg.install_dir, pkg_name)
         mut latest_hash := current_hash
         fetch_pkg_info := FetchMethod{ dir: pkg_location }
         latest_hash = fetch_pkg_info.check_version(pkg.method)
@@ -192,10 +191,10 @@ pub fn (vpkg Vpkg) update_packages() {
     print_status(updated_packages, 'updated')
 }
 
-pub fn (vpkg mut Vpkg) get_packages(packages []string, is_final bool) []InstalledPackage {
-    mut installed_packages := []InstalledPackage
+pub fn (mut vpkg Vpkg) get_packages(packages []string, is_final bool) []InstalledPackage {
+    mut installed_packages := []InstalledPackage{}
     mut lockfile := read_lockfile(vpkg.dir) or { return installed_packages }
-    mut deps := []string
+    mut deps := []string{}
 
     for pkg in packages {
         // pkg_arr := pkg.split('@')
@@ -237,11 +236,11 @@ pub fn (vpkg mut Vpkg) get_packages(packages []string, is_final bool) []Installe
 }
 
 pub fn (vpkg Vpkg) link(dir string) {
-    name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {filepath.filename(dir)}
-    target := filepath.join(GlobalModulesDir, name)
+    name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {dirname(dir)}
+    target := os.join_path(global_modules_dir, name)
     os.symlink(dir, target) or {
         if C.errno == 2 {
-            os.mkdir(GlobalModulesDir) or { return }
+            os.mkdir(global_modules_dir) or { return }
         }
         vpkg.link(dir)
     }
@@ -249,10 +248,10 @@ pub fn (vpkg Vpkg) link(dir string) {
 }
 
 pub fn (vpkg Vpkg) unlink(dir string) {
-    name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {filepath.filename(dir)}
-    target := filepath.join(GlobalModulesDir, name)
+    name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {dirname(dir)}
+    target := os.join_path(global_modules_dir, name)
     if os.exists(target) {
-        os.rm(filepath.join(GlobalModulesDir, name))
+        os.rm(os.join_path(global_modules_dir, name))
     }
     if !os.exists(target) {
         println('Successfully unlinked $name')
@@ -288,7 +287,7 @@ pub fn (vpkg Vpkg) show_package_information() {
 }
 
 fn (vpkg Vpkg) show_version() {
-    println('vpkg ${Version} for ${os.user_os()}')
+    println('vpkg ${version} for ${os.user_os()}')
     println('Repo: https://github.com/vpkg-project/vpkg \n')
     println('2020 (c) vpkg developers and it\'s contributors.')
 }

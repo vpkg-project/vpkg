@@ -24,11 +24,10 @@
 module api
 
 import os
-import filepath
 
 const (
-    Version = '0.7.1'
-    GlobalModulesDir = os.home_dir() + '.vmodules'
+    version = '0.7.1'
+    global_modules_dir = os.home_dir() + '.vmodules'
 )
 
 pub struct Vpkg {
@@ -48,7 +47,7 @@ pub fn new(dir string) Vpkg {
     instance := Vpkg{
         dir                : dir
         manifest_file_path : get_manifest_file_path(dir)
-        install_dir        : filepath.join(dir, 'modules')
+        install_dir        : os.join_path(dir, 'modules')
         is_global          : false
         manifest           : load_manifest_file(dir)
     }
@@ -56,11 +55,11 @@ pub fn new(dir string) Vpkg {
     return instance
 }
 
-pub fn (vpkg mut Vpkg) run(args []string) {
-	_argv := vargs_parse(args, 0)
-	vpkg.command = _argv.command
-    vpkg.options = _argv.options
-    vpkg.unknown = _argv.unknown
+pub fn (mut vpkg Vpkg) run(args []string) {
+	argv_ := vargs_parse(args, 0)
+	vpkg.command = argv_.command
+    vpkg.options = argv_.options
+    vpkg.unknown = argv_.unknown
     vpkg.is_global = 'g' in vpkg.options || 'global' in vpkg.options
 
     match vpkg.command {

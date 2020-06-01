@@ -25,7 +25,6 @@ module api
 
 import os
 import json
-import filepath
 
 struct Lockfile {
 mut:
@@ -34,7 +33,7 @@ mut:
 }
 
 fn get_lockfile_path(dir string) string {
-    return filepath.join(dir, '.vpkg-lock.json')
+    return os.join_path(dir, '.vpkg-lock.json')
 }
 
 fn read_lockfile(dir string) ?Lockfile {
@@ -66,9 +65,9 @@ fn (lock Lockfile) find_package(name string) int {
     return -1
 }
 
-fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir string) {    
-    if lock.version != Version {
-        lock.version = Version
+fn (mut lock Lockfile) regenerate(packages []InstalledPackage, remove bool, dir string) {    
+    if lock.version != version {
+        lock.version = version
     }
  
     for package in packages {
@@ -128,14 +127,14 @@ fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
 }
 
 fn create_lockfile(dir string) Lockfile {
-    lockfile_json_arr := ['{', '   "version": "${Version}",', '   "packages": []', '}']
-    mut lockfile := os.create(get_lockfile_path(dir)) or { return Lockfile{Version, []InstalledPackage} }
+    lockfile_json_arr := ['{', '   "version": "${version}",', '   "packages": []', '}']
+    mut lockfile := os.create(get_lockfile_path(dir)) or { return Lockfile{version, []InstalledPackage{}} }
     lockfile_json := lockfile_json_arr.join('\n')
     lockfile.write(lockfile_json)
     defer { lockfile.close() }
 
     contents := read_lockfile(dir) or {
-        return Lockfile{Version, []InstalledPackage}
+        return Lockfile{version, []InstalledPackage{}}
     }
 
     return contents

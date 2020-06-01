@@ -23,10 +23,7 @@
 
 module api
 
-import (
-    filepath
-    os
-)
+import os
 
 struct FetchMethod {
     download_url string
@@ -86,7 +83,7 @@ fn (fm FetchMethod) git_clone() InstalledPackage {
     dir_name  := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     branch    := if fm.download_url.all_after('#') != fm.download_url { fm.download_url.all_after('#') } else { 'master' }
     clone_url := fm.download_url.all_before('#')
-    clone_dir := filepath.join(fm.dir, dir_name)
+    clone_dir := os.join_path(fm.dir, dir_name)
 
     if os.exists(clone_dir) {
         delete_package_contents(clone_dir)
@@ -137,7 +134,7 @@ fn (fm FetchMethod) hg_clone() InstalledPackage {
     dir_name  := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     branch    := if fm.download_url.all_after('#') != fm.download_url { fm.download_url.all_after('#') } else { 'master' }
     clone_url := fm.download_url.all_before('#')
-    clone_dir := filepath.join(fm.dir, dir_name)
+    clone_dir := os.join_path(fm.dir, dir_name)
 
     if os.exists(clone_dir) {
         delete_package_contents(clone_dir)
@@ -190,7 +187,7 @@ fn (fm FetchMethod) svn_checkout() InstalledPackage {
     dir_name  := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     branch    := if fm.download_url.all_after('#') != fm.download_url { fm.download_url.all_after('#') } else { 'master' }
     clone_url := fm.download_url.all_before('#')
-    clone_dir := filepath.join(fm.dir, dir_name)
+    clone_dir := os.join_path(fm.dir, dir_name)
 
     if os.exists(clone_dir) {
         delete_package_contents(clone_dir)
