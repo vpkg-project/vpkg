@@ -74,7 +74,7 @@ fn tokenize(t_type Lexeme, val string) Token {
     return Token{t_type, val}
 }
 
-fn (s mut VModScanner) skip_whitespace() {
+fn (mut s VModScanner) skip_whitespace() {
 	for s.pos < s.text.len-1 && s.text[s.pos].is_space() {
 		s.pos++
 	}
@@ -88,7 +88,7 @@ fn is_name_alpha(chr byte) bool {
     return chr.is_letter() || chr == `_`
 }
 
-fn (s mut VModScanner) create_string() string {
+fn (mut s VModScanner) create_string() string {
 	mut start := s.pos
 	s.inside_text = false
 	slash := `\\`
@@ -119,7 +119,7 @@ fn (s mut VModScanner) create_string() string {
 	return lit
 }
 
-fn (s mut VModScanner) create_identifier() string {
+fn (mut s VModScanner) create_identifier() string {
 	start := s.pos
 	for {
 		s.pos++
@@ -138,7 +138,7 @@ fn (s mut VModScanner) create_identifier() string {
 
 fn get_array_contents(tokens []Token, start_pos int) []string {
     mut inside_array := true
-    mut contents := []string
+    mut contents := []string{}
 
     for i := start_pos; inside_array != false; i++ {
         if token_type(tokens[i].@type) == 'str' {
@@ -172,7 +172,7 @@ fn token_type(t_type Lexeme) string {
     return token_type
 }
 
-fn (s mut VModScanner) scan() Token {
+fn (mut s VModScanner) scan() Token {
     if s.started && s.pos != s.text.len-1 {
         s.pos++
     }
@@ -198,10 +198,10 @@ fn (s mut VModScanner) scan() Token {
 
     if is_name_alpha(char_) {
         name := s.create_identifier()
-        _next := if s.pos + 1 < s.text.len { s.text[s.pos + 1] } else { `\0` }
+        next_ := if s.pos + 1 < s.text.len { s.text[s.pos + 1] } else { `\0` }
 
         if s.inside_text {
-            if _next == `\'` {
+            if next_ == `\'` {
                 s.pos++
                 s.inside_text = false
             }
@@ -255,8 +255,8 @@ fn (s mut VModScanner) scan() Token {
     return tokenize(.eof, '')
 }
 
-fn (s mut VModScanner) parse() VModPkgManifest {
-    mut tokens := []Token
+fn (mut s VModScanner) parse() VModPkgManifest {
+    mut tokens := []Token{}
     mut pkg_info := VModPkgManifest{}
 
     mut has_started := false

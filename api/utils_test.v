@@ -1,4 +1,4 @@
-import api
+module api
 
 fn test_is_empty_str() {
 	mut str := '     '
