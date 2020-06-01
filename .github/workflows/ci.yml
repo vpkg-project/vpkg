@@ -1,21 +1,17 @@
 name: CI
 on: [push, pull_request]
 jobs:
-    ubuntu-latest:
-        runs-on: ubuntu-latest
-        steps:
-            # - name: Installing Dependencies
-              # run: sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list; sudo apt-get update; sudo apt-get install xvfb; sudo apt-get install libgtk-3-dev;
-            - name: Installing V
-              run: cd ~; git clone https://github.com/vlang/v.git; cd v; make CC=clang; sudo ./v symlink
-            - uses: actions/checkout@v1
-            - name: Compiling
-              env:
-                  VFLAGS: -show_c_cmd -cg
-              run: v version; v .
-            - name: Testing
-              env:
-                  VFLAGS: -show_c_cmd -cg -stats
-              run: v test tests
-            - name: Checking `vpkg` description
-              run: v run ./.github/workflows/check-desc.v
+  ubuntu-latest:
+    runs-on: ubuntu-latest
+    env:
+      VFLAGS: -showcc -cg -cc gcc
+    steps:
+      - name: Installing V latest
+        run: cd ~; git clone https://github.com/vlang/v.git; cd v; make; sudo ./v symlink; v version
+      - uses: actions/checkout@v1
+      - name: Compiling
+        run: v .
+      - name: Testing
+        run: v test tests
+      - name: Checking vpkg description
+        run: v run ./.github/workflows/check-desc.v
