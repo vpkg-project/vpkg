@@ -7,5 +7,5 @@ fn main() {
     args := os.args
     mut app := vpkg.new(os.getwd())
     
-    app.run(args[1..args.len])
+    app.run(args[1..])
 }
