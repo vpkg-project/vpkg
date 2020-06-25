@@ -10,3 +10,4 @@ fns.txt
 *.lib
 *.obj
 *.pdb
+*.code-workspace

@@ -282,7 +282,7 @@ fn (mut s VModScanner) parse() VModPkgManifest {
 
         if c_token_type == 'name' && n_token_type == 'colon' {
             next_next := tokens[i+2]
-            
+
             if token_type(next_next.@type) == 'str' {
                 value := next_next.val
 
@@ -295,7 +295,7 @@ fn (mut s VModScanner) parse() VModPkgManifest {
 
             if token_type(next_next.@type) == 'labr' {
                 match current_tokens.val {
-                    'deps' { pkg_info.deps = get_array_contents(tokens, i+2) }
+                    'dependencies' { pkg_info.deps = get_array_contents(tokens, i+2) }
                     else { continue }
                 }
             }
