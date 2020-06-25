@@ -112,12 +112,13 @@ pub fn (vpkg Vpkg) create_manifest_file() {
     }
 
     mw.write('name', pkg_name, false)
-    mw.write('version', '1.0.0', false)
+    mw.write('version', '0.0.0', false)
+    mw.write_arr('author', ['Your Author Name <author@example.com>'], false)
 
     if vpkg.options['format'] == 'vmod' {
-        mw.write_arr('deps', [], false)
+        mw.write('repo_url', 'https://github.com/<your-username>/<your-repo>', false)
+        mw.write_arr('dependencies', [], false)
     } else {
-        mw.write_arr('author', ['Your Author Name <author@example.com>'], false)
         mw.write('repo', 'https://github.com/<your-username>/<your-repo>', false)
         mw.write_arr('test_files', [], false)
         mw.write_arr('dependencies', [], false)
@@ -162,7 +163,7 @@ pub fn (vpkg Vpkg) remove_packages(packages []string) {
     print_status(removed_packages, 'removed')
 }
 
-pub fn (vpkg Vpkg) update_packages() {    
+pub fn (vpkg Vpkg) update_packages() {
     mut updated_packages := []InstalledPackage{}
     println('Fetching lockfile')
     mut lockfile := read_lockfile(vpkg.dir) or { return }
@@ -216,7 +217,7 @@ pub fn (mut vpkg Vpkg) get_packages(packages []string, is_final bool) []Installe
     if deps.len != 0 {
         installed_packages << vpkg.get_packages(deps, false)
     }
-    
+
     if is_final {
         for pkg in packages {
             if !vpkg.manifest.is_exist(pkg) {
@@ -264,11 +265,11 @@ pub fn (vpkg Vpkg) show_package_information() {
 
     println('Manifest path: ${vpkg.manifest_file_path}')
     println('Package name: ${pkg_info.name}@${pkg_info.version}')
-    
+
     if pkg_info.repo.len != 0 {
         println('Repository: ${pkg_info.repo}')
-    } 
-    
+    }
+
     println('\nDependencies:')
     for dependency in pkg_info.dependencies {
         println('- ' + dependency)

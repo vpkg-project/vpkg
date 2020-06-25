@@ -68,7 +68,7 @@ fn new_vmod() ManifestWriter {
         key_quotes  : '',
         val_quotes  : '\'',
         opening     : 'Module {',
-        closing     : '}',
+        closing     : '}\n',
         colon       : ':',
         comma       : ',',
         spaces_count: 4,
@@ -200,7 +200,7 @@ fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
 
     if m_path.ends_with('.vpkg.json') && format == 'vpkg' {
         os.mv(m_path, os.join_path(dir, 'vpkg.json'))
-    } 
+    }
 }
 
 fn (manifest PkgManifest) manipulate_version(@type string, state string) string {
