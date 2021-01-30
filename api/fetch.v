@@ -2,6 +2,7 @@
 // https://github.com/vpkg-project/vpkg
 //
 // Copyright (c) 2020 vpkg developers
+// Copyright (C) 2021 Adam "islonely" Oates
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +27,9 @@ module api
 import os
 
 struct Package {
-    name   string = ''
-    url    string = ''
-    method string = ''
+    name   string
+    url    string
+    method string
 }
 
 struct InstalledPackage {

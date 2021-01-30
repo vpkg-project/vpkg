@@ -2,6 +2,7 @@
 // https://github.com/vpkg-project/vpkg
 //
 // Copyright (c) 2020 vpkg developers
+// Copyright (C) 2021 Adam "islonely" Oates
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -130,7 +131,11 @@ pub fn (vpkg Vpkg) create_manifest_file() {
         return
     }
 
-    manifest_data.write(mw.contents.str())
+    manifest_data.write(mw.contents.str().bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { manifest_data.close() }
     mw.contents.free()
 
@@ -251,7 +256,11 @@ pub fn (vpkg Vpkg) unlink(dir string) {
     name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {dirname(dir)}
     target := os.join_path(global_modules_dir, name)
     if os.exists(target) {
-        os.rm(os.join_path(global_modules_dir, name))
+        os.rm(os.join_path(global_modules_dir, name)) or {
+            eprintln(err)
+            println('Terminating...')
+            exit(0)
+        }
     }
     if !os.exists(target) {
         println('Successfully unlinked $name')

@@ -2,6 +2,7 @@
 // https://github.com/vpkg-project/vpkg
 //
 // Copyright (c) 2020 vpkg developers
+// Copyright (c) 2021 Adam "islonely" Oates
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -199,7 +200,11 @@ fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
     }
 
     if m_path.ends_with('.vpkg.json') && format == 'vpkg' {
-        os.mv(m_path, os.join_path(dir, 'vpkg.json'))
+        os.mv(m_path, os.join_path(dir, 'vpkg.json')) or {
+            eprintln(err)
+            println('Terminating...')
+            exit(0)
+        }
     } 
 }
 
@@ -271,7 +276,11 @@ fn manifest_to_vmod(manifest PkgManifest, dir string) {
     mut vmod_file := os.create(os.join_path(dir, 'v.mod')) or { return }
     vmod_contents_str := manifest.to_vmod()
 
-    vmod_file.write(vmod_contents_str)
+    vmod_file.write(vmod_contents_str.bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { vmod_file.close() }
 }
 
@@ -279,6 +288,10 @@ fn manifest_to_vpkg(manifest PkgManifest, dir string) {
     mut vpkg_file := os.create(os.join_path(dir, 'vpkg.json')) or { return }
     vpkg_contents_str := manifest.to_vpkg_json()
 
-    vpkg_file.write(vpkg_contents_str)
+    vpkg_file.write(vpkg_contents_str.bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { vpkg_file.close() }
 }

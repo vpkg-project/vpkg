@@ -2,6 +2,7 @@
 // https://github.com/vpkg-project/vpkg
 //
 // Copyright (c) 2020 vpkg developers
+// Copyright (C) 2021 Adam "islonely" Oates
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -55,8 +56,8 @@ fn read_lockfile(dir string) ?Lockfile {
     }
 }
 
-fn (lock Lockfile) find_package(name string) int {
-    for idx, package in lock.packages {
+fn (lf Lockfile) find_package(name string) int {
+    for idx, package in lf.packages {
         if package.name == name {
             return idx
         }
@@ -65,21 +66,21 @@ fn (lock Lockfile) find_package(name string) int {
     return -1
 }
 
-fn (mut lock Lockfile) regenerate(packages []InstalledPackage, remove bool, dir string) {    
-    if lock.version != version {
-        lock.version = version
+fn (mut lf Lockfile) regenerate(packages []InstalledPackage, remove bool, dir string) {    
+    if lf.version != version {
+        lf.version = version
     }
  
     for package in packages {
-        package_idx := lock.find_package(package.name)
+        package_idx := lf.find_package(package.name)
 
         if package_idx != -1 {
             if remove {
-                lock.packages.delete(package_idx)
+                lf.packages.delete(package_idx)
             } else {
-                curr_lock_pkg := lock.packages[package_idx]
+                curr_lock_pkg := lf.packages[package_idx]
 
-                lock.packages[package_idx] = InstalledPackage{
+                lf.packages[package_idx] = InstalledPackage{
                     name         : package.name
                     path         : package.path
                     version      : package.version
@@ -90,7 +91,7 @@ fn (mut lock Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
             }
         } else {
             if !remove {
-                lock.packages << InstalledPackage{
+                lf.packages << InstalledPackage{
                     name         : package.name
                     path         : package.path
                     version      : package.version
@@ -103,9 +104,9 @@ fn (mut lock Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
     }
 
     // stringify contents
-    mut contents := ['{', '   "version": "${lock.version}",', '   "packages": [']
+    mut contents := ['{', '   "version": "${lf.version}",', '   "packages": [']
 
-    for i, pkg in lock.packages {
+    for i, pkg in lf.packages {
         contents << '      {'
         contents << '         "name": "${pkg.name}",'
         contents << '         "version": "${pkg.version}",'
@@ -113,7 +114,7 @@ fn (mut lock Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
         contents << '         "method": "${pkg.method}",'
         contents << '         "latest_commit": "${pkg.latest_commit}"'
 
-        if i != lock.packages.len-1 {
+        if i != lf.packages.len-1 {
             contents << '      },'
         } else {
             contents << '      }'
@@ -123,14 +124,22 @@ fn (mut lock Lockfile) regenerate(packages []InstalledPackage, remove bool, dir 
     contents << '   ]'
     contents << '}'
 
-    os.write_file(get_lockfile_path(dir), contents.join('\n'))
+    os.write_file(get_lockfile_path(dir), contents.join('\n')) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
 }
 
 fn create_lockfile(dir string) Lockfile {
     lockfile_json_arr := ['{', '   "version": "${version}",', '   "packages": []', '}']
     mut lockfile := os.create(get_lockfile_path(dir)) or { return Lockfile{version, []InstalledPackage{}} }
     lockfile_json := lockfile_json_arr.join('\n')
-    lockfile.write(lockfile_json)
+    lockfile.write(lockfile_json.bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { lockfile.close() }
 
     contents := read_lockfile(dir) or {

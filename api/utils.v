@@ -2,6 +2,7 @@
 // https://github.com/vpkg-project/vpkg
 //
 // Copyright (c) 2020 vpkg developers
+// Copyright (c) 2021 Adam "islonely" Oates
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +28,11 @@ import os
 import net.urllib
 
 fn delete_content(path string) {
-    os.rm(path)
+    os.rm(path) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
 }
 
 fn delete_package_contents(path string) bool {
@@ -35,7 +40,11 @@ fn delete_package_contents(path string) bool {
     new_folder_contents := os.ls(path) or { return false }
 
     if new_folder_contents.len == 0 {
-        os.rmdir(path)
+        os.rmdir(path) or {
+            eprintln(err)
+            println('Terminating...')
+            exit(0)
+        }
         return true
     } else {
         return false
@@ -86,7 +95,11 @@ fn rm_test_execs(dir string) {
         base_exec_name = base_exec_name + '.exe'
     }
 
-    os.rm(base_exec_name)
+    os.rm(base_exec_name) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
 }
 
 fn is_url(a string) bool {
