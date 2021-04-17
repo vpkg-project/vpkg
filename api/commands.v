@@ -101,7 +101,6 @@ pub fn (vpkg Vpkg) create_manifest_file() ? {
     pkg_name := dirname(vpkg.dir)
     mut manifest_filename := 'vpkg.json'
     mut mw := new_vpkg_json()
-    defer { mw.close()? }
 
     match vpkg.options['format'] {
         'vmod' {
@@ -123,6 +122,7 @@ pub fn (vpkg Vpkg) create_manifest_file() ? {
         mw.write_arr('test_files', [], false)?
         mw.write_arr('dependencies', [], false)?
     }
+    mw.close()?
 
     mut manifest_data := os.create(os.join_path(vpkg.dir, manifest_filename)) or {
         eprintln('Package manifest file was not created successfully.')
