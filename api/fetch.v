@@ -26,9 +26,9 @@ module api
 import os
 
 struct Package {
-    name   string = ''
-    url    string = ''
-    method string = ''
+    name   string
+    url    string
+    method string
 }
 
 struct InstalledPackage {

@@ -55,27 +55,27 @@ pub fn new(dir string) Vpkg {
     return instance
 }
 
-pub fn (mut vpkg Vpkg) run(args []string) {
+pub fn (mut vpkg Vpkg) run(args []string) ? {
 	argv_ := vargs_parse(args, 0)
 	vpkg.command = argv_.command
-    vpkg.options = argv_.options
+    vpkg.options = argv_.options.clone()
     vpkg.unknown = argv_.unknown
     vpkg.is_global = 'g' in vpkg.options || 'global' in vpkg.options
 
     match vpkg.command {
-        'get'     { vpkg.get_packages(vpkg.unknown, true) }
+        'get'     { vpkg.get_packages(vpkg.unknown, true) or { return error("Failed to `get` packages")} }
         'help'    { vpkg.show_help() }
         'info'    { vpkg.show_package_information() }
-        'init'    { vpkg.create_manifest_file() }
+        'init'    { vpkg.create_manifest_file() or { return error("Failed to create manifest file (`init`)")} }
         'link'    { vpkg.link(vpkg.dir) }
-        'install' { vpkg.install_packages(vpkg.dir) }
+        'install' { vpkg.install_packages(vpkg.dir) or { return error("Failed to `install` packages")} }
         'remove'  { vpkg.remove_packages(vpkg.unknown) }
-        'migrate' { if vpkg.unknown[0] == 'manifest' {vpkg.migrate_manifest()} else {vpkg.show_help()} }
+        'migrate' { if vpkg.unknown[0] == 'manifest' { vpkg.migrate_manifest() or { return error("Failed to `migrate` manifest")} } else {vpkg.show_help()} }
         'update'  { vpkg.update_packages() }
         'unlink'  { vpkg.unlink(vpkg.dir) }
         'version' { vpkg.show_version() }
         'test'    { vpkg.test_package() }
-        'release' { vpkg.release_module_to_git() }
+        'release' { vpkg.release_module_to_git() or { return error("Failed to `release` module")} }
         else      { vpkg.show_help() }
     }
 }

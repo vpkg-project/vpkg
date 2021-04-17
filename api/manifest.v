@@ -81,11 +81,11 @@ fn (mut mw ManifestWriter) init_write() {
     mw.contents.writeln(mw.opening)
 }
 
-fn (mut mw ManifestWriter) close() {
-    mw.contents.write('\n' + mw.closing)
+fn (mut mw ManifestWriter) close() ?int {
+    return mw.contents.write(('\n' + mw.closing).bytes())
 }
 
-fn (mut mw ManifestWriter) write(key string, val string, newline bool) {
+fn (mut mw ManifestWriter) write(key string, val string, newline bool) ? {
     if mw.contents.len > mw.initial_content().len {
         mw.contents.writeln(mw.comma)
     }
@@ -100,10 +100,11 @@ fn (mut mw ManifestWriter) write(key string, val string, newline bool) {
         text = key_with_quotes + '${mw.colon} ' + val
     }
 
+    message := strings.repeat(` `, mw.spaces_count) + text
     if newline {
-        mw.contents.writeln(strings.repeat(` `, mw.spaces_count) + text)
+        mw.contents.writeln(message)
     } else {
-        mw.contents.write(strings.repeat(` `, mw.spaces_count) + text)
+        mw.contents.write(message.bytes())?
     }
 }
 
@@ -112,7 +113,7 @@ fn (mw ManifestWriter) initial_content() string {
     return text
 }
 
-fn (mut mw ManifestWriter) write_arr(key string, arr []string, newline bool) {
+fn (mut mw ManifestWriter) write_arr(key string, arr []string, newline bool) ? {
     if mw.contents.len != mw.initial_content().len {
         mw.contents.writeln(mw.comma)
     }
@@ -121,12 +122,13 @@ fn (mut mw ManifestWriter) write_arr(key string, arr []string, newline bool) {
 
     if mw.contents.len == 0 { mw.init_write() }
 
-    mw.contents.write(strings.repeat(` `, mw.spaces_count) + key_with_quotes + '${mw.colon} ')
+    mw.contents.write((strings.repeat(` `, mw.spaces_count) + key_with_quotes + '${mw.colon} ').bytes())?
 
+    message := '['
     if newline {
-        mw.contents.writeln('[')
+        mw.contents.writeln(message)
     } else {
-        mw.contents.write('[')
+        mw.contents.write(message.bytes())?
     }
 
     for i, val in arr {
@@ -137,16 +139,16 @@ fn (mut mw ManifestWriter) write_arr(key string, arr []string, newline bool) {
         }
 
         if newline {
-            mw.contents.write(strings.repeat(` `, mw.spaces_count*2) + text)
+            mw.contents.write((strings.repeat(` `, mw.spaces_count*2) + text).bytes())?
         } else {
-            mw.contents.write(text)
+            mw.contents.write(text.bytes())?
         }
     }
 
     if newline {
-        mw.contents.write('\n' + strings.repeat(` `, mw.spaces_count) + ']')
+        mw.contents.write(('\n' + strings.repeat(` `, mw.spaces_count) + ']').bytes())?
     } else {
-        mw.contents.write(']')
+        mw.contents.write(']'.bytes())?
     }
 }
 
@@ -189,17 +191,21 @@ fn identify_manifest_type(path string) string {
     return ''
 }
 
-fn migrate_manifest_file(dir string, manifest PkgManifest, format string) {
+fn migrate_manifest_file(dir string, manifest PkgManifest, format string) ? {
     m_path := get_manifest_file_path(dir)
 
     match format {
-        'vmod' {manifest_to_vmod(manifest, dir)}
-        'vpkg' {manifest_to_vpkg(manifest, dir)}
+        'vmod' {manifest_to_vmod(manifest, dir)?}
+        'vpkg' {manifest_to_vpkg(manifest, dir)?}
         else { return }
     }
 
     if m_path.ends_with('.vpkg.json') && format == 'vpkg' {
-        os.mv(m_path, os.join_path(dir, 'vpkg.json'))
+        os.mv(m_path, os.join_path(dir, 'vpkg.json')) or {
+            eprintln(err)
+            println('Terminating...')
+            exit(0)
+        }
     } 
 }
 
@@ -239,26 +245,26 @@ fn (manifest PkgManifest) manipulate_version(@type string, state string) string 
     return new_ver
 }
 
-fn (manifest PkgManifest) to_vmod() string {
+fn (manifest PkgManifest) to_vmod() ?string {
     mut vmod := new_vmod()
 
-    vmod.write('name', manifest.name, false)
-    vmod.write('version', manifest.version, false)
-    vmod.write_arr('deps', manifest.dependencies, false)
-    vmod.close()
+    vmod.write('name', manifest.name, false)?
+    vmod.write('version', manifest.version, false)?
+    vmod.write_arr('deps', manifest.dependencies, false)?
+    vmod.close()?
 
     return vmod.contents.str()
 }
 
-fn (manifest PkgManifest) to_vpkg_json() string {
+fn (manifest PkgManifest) to_vpkg_json() ?string {
     mut vpkg_json := new_vpkg_json()
 
-    vpkg_json.write('name', manifest.name, false)
-    vpkg_json.write('version', manifest.version, false)
-    vpkg_json.write_arr('author', manifest.author, true)
-    vpkg_json.write('repo', manifest.repo, false)
-    vpkg_json.write_arr('dependencies', manifest.dependencies, true)
-    vpkg_json.close()
+    vpkg_json.write('name', manifest.name, false)?
+    vpkg_json.write('version', manifest.version, false)?
+    vpkg_json.write_arr('author', manifest.author, true)?
+    vpkg_json.write('repo', manifest.repo, false)?
+    vpkg_json.write_arr('dependencies', manifest.dependencies, true)?
+    vpkg_json.close()?
 
     return vpkg_json.contents.str()
 }
@@ -267,18 +273,26 @@ fn (manifest PkgManifest) is_exist(pkg_name string) bool {
     return pkg_name in manifest.dependencies
 }
 
-fn manifest_to_vmod(manifest PkgManifest, dir string) {
+fn manifest_to_vmod(manifest PkgManifest, dir string) ? {
     mut vmod_file := os.create(os.join_path(dir, 'v.mod')) or { return }
-    vmod_contents_str := manifest.to_vmod()
+    vmod_contents_str := manifest.to_vmod()?
 
-    vmod_file.write(vmod_contents_str)
+    vmod_file.write(vmod_contents_str.bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { vmod_file.close() }
 }
 
-fn manifest_to_vpkg(manifest PkgManifest, dir string) {
+fn manifest_to_vpkg(manifest PkgManifest, dir string) ? {
     mut vpkg_file := os.create(os.join_path(dir, 'vpkg.json')) or { return }
-    vpkg_contents_str := manifest.to_vpkg_json()
+    vpkg_contents_str := manifest.to_vpkg_json()?
 
-    vpkg_file.write(vpkg_contents_str)
+    vpkg_file.write(vpkg_contents_str.bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { vpkg_file.close() }
 }

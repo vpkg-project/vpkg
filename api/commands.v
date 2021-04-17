@@ -25,18 +25,18 @@ module api
 
 import os
 
-pub fn (vpkg Vpkg) migrate_manifest() {
+pub fn (vpkg Vpkg) migrate_manifest() ? {
     m_type := if 'format' in vpkg.options { vpkg.options['format'] } else { 'vpkg' }
 
-    migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)
+    migrate_manifest_file(vpkg.dir, vpkg.manifest, m_type)?
 }
 
-pub fn (mut vpkg Vpkg) release_module_to_git() {
+pub fn (mut vpkg Vpkg) release_module_to_git() ? {
     if 'inc' in vpkg.options {
         state := if 'state' in vpkg.options { vpkg.options['state'] } else { '' }
 
         vpkg.manifest.version = vpkg.manifest.manipulate_version(vpkg.options['inc'], state)
-        migrate_manifest_file(vpkg.dir, vpkg.manifest, identify_manifest_type(vpkg.manifest_file_path))
+        migrate_manifest_file(vpkg.dir, vpkg.manifest, identify_manifest_type(vpkg.manifest_file_path))?
     }
 
     if vpkg.manifest.test_files.len != 0 {
@@ -97,10 +97,11 @@ pub fn (vpkg Vpkg) test_package() {
     }
 }
 
-pub fn (vpkg Vpkg) create_manifest_file() {
+pub fn (vpkg Vpkg) create_manifest_file() ? {
     pkg_name := dirname(vpkg.dir)
     mut manifest_filename := 'vpkg.json'
     mut mw := new_vpkg_json()
+    defer { mw.close()? }
 
     match vpkg.options['format'] {
         'vmod' {
@@ -111,37 +112,39 @@ pub fn (vpkg Vpkg) create_manifest_file() {
         else {}
     }
 
-    mw.write('name', pkg_name, false)
-    mw.write('version', '1.0.0', false)
+    mw.write('name', pkg_name, false)?
+    mw.write('version', '1.0.0', false)?
 
     if vpkg.options['format'] == 'vmod' {
-        mw.write_arr('deps', [], false)
+        mw.write_arr('deps', [], false)?
     } else {
-        mw.write_arr('author', ['Your Author Name <author@example.com>'], false)
-        mw.write('repo', 'https://github.com/<your-username>/<your-repo>', false)
-        mw.write_arr('test_files', [], false)
-        mw.write_arr('dependencies', [], false)
+        mw.write_arr('author', ['Your Author Name <author@example.com>'], false)?
+        mw.write('repo', 'https://github.com/<your-username>/<your-repo>', false)?
+        mw.write_arr('test_files', [], false)?
+        mw.write_arr('dependencies', [], false)?
     }
-
-    mw.close()
 
     mut manifest_data := os.create(os.join_path(vpkg.dir, manifest_filename)) or {
         eprintln('Package manifest file was not created successfully.')
         return
     }
 
-    manifest_data.write(mw.contents.str())
+    manifest_data.write(mw.contents.str().bytes()) or {
+        eprintln(err)
+        println('Terminating...')
+        exit(0)
+    }
     defer { manifest_data.close() }
-    mw.contents.free()
+    unsafe { mw.contents.free() }
 
     println('Package manifest file was created successfully.')
 }
 
-pub fn (mut vpkg Vpkg) install_packages(dir string) {
+pub fn (mut vpkg Vpkg) install_packages(dir string) ?[]InstalledPackage {
     println('Installing packages')
     pkg_info := vpkg.manifest
     packages := pkg_info.dependencies
-    vpkg.get_packages(packages, true)
+    return vpkg.get_packages(packages, true)
 }
 
 pub fn (vpkg Vpkg) remove_packages(packages []string) {
@@ -191,7 +194,7 @@ pub fn (vpkg Vpkg) update_packages() {
     print_status(updated_packages, 'updated')
 }
 
-pub fn (mut vpkg Vpkg) get_packages(packages []string, is_final bool) []InstalledPackage {
+pub fn (mut vpkg Vpkg) get_packages(packages []string, is_final bool) ?[]InstalledPackage{
     mut installed_packages := []InstalledPackage{}
     mut lockfile := read_lockfile(vpkg.dir) or { return installed_packages }
     mut deps := []string{}
@@ -214,7 +217,7 @@ pub fn (mut vpkg Vpkg) get_packages(packages []string, is_final bool) []Installe
     }
 
     if deps.len != 0 {
-        installed_packages << vpkg.get_packages(deps, false)
+        installed_packages << vpkg.get_packages(deps, false)?
     }
     
     if is_final {
@@ -225,7 +228,7 @@ pub fn (mut vpkg Vpkg) get_packages(packages []string, is_final bool) []Installe
         }
 
         if !('no-save' in vpkg.options) {
-            migrate_manifest_file(vpkg.dir, vpkg.manifest, identify_manifest_type(vpkg.manifest_file_path))
+            migrate_manifest_file(vpkg.dir, vpkg.manifest, identify_manifest_type(vpkg.manifest_file_path))?
         }
 
         lockfile.regenerate(installed_packages, false, vpkg.dir)
@@ -251,7 +254,11 @@ pub fn (vpkg Vpkg) unlink(dir string) {
     name := if !is_empty_str(vpkg.manifest.name) {vpkg.manifest.name} else {dirname(dir)}
     target := os.join_path(global_modules_dir, name)
     if os.exists(target) {
-        os.rm(os.join_path(global_modules_dir, name))
+        os.rm(os.join_path(global_modules_dir, name)) or {
+            eprintln(err)
+            println('Terminating...')
+            exit(0)
+        }
     }
     if !os.exists(target) {
         println('Successfully unlinked $name')
