@@ -15,7 +15,5 @@ jobs:
           sysctl vm.mmap_min_addr
       - name: Compiling
         run: v .
-      - name: Testing
-        run: v test tests
       - name: Checking vpkg description
         run: v run ./.github/workflows/check-desc.v
