@@ -9,9 +9,11 @@ jobs:
       - name: Installing V latest
         run: cd ~; git clone https://github.com/vlang/v.git; cd v; make; sudo ./v symlink; v version
       - uses: actions/checkout@v1
+      - name: debug
+        run: |
+          v version
+          sysctl vm.mmap_min_addr
       - name: Compiling
         run: v .
-      - name: Testing
-        run: v test tests
       - name: Checking vpkg description
         run: v run ./.github/workflows/check-desc.v

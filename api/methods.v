@@ -89,7 +89,8 @@ fn (fm FetchMethod) git_clone() InstalledPackage {
         delete_package_contents(clone_dir)
     }
 
-    git_clone := os.exec('git clone ${clone_url} ${clone_dir} --branch ${branch} --quiet --depth 1') or {
+    git_clone := os.execute('git clone ${clone_url} ${clone_dir} --branch ${branch} --quiet --depth 1')
+    if git_clone.exit_code != 0 {
         eprintln('Git clone error')
         return InstalledPackage{}
     }
@@ -108,12 +109,12 @@ fn (fm FetchMethod) git_clone() InstalledPackage {
 }
 
 fn (fm FetchMethod) git_fetch() string {
-    cmd := os.exec('git -C ${fm.dir} fetch') or { return '' }
+    cmd := os.execute('git -C ${fm.dir} fetch')
     return cmd.output
 }
 
 fn (fm FetchMethod) git_pull() string {
-    cmd := os.exec('git -C ${fm.dir} pull') or { return '' }
+    cmd := os.execute('git -C ${fm.dir} pull')
     return cmd.output
 }
 
@@ -122,7 +123,7 @@ fn (fm FetchMethod) git_latest_commit() string {
     dir_name  := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     clone_dir := '${fm.dir}/${dir_name}'
 
-    cmd := os.exec('git --git-dir ${clone_dir}/.git log --pretty=format:%H -n 1') or { return '' }
+    cmd := os.execute('git --git-dir ${clone_dir}/.git log --pretty=format:%H -n 1')
 
     return cmd.output
 }
@@ -140,7 +141,8 @@ fn (fm FetchMethod) hg_clone() InstalledPackage {
         delete_package_contents(clone_dir)
     }
 
-    hg_clone := os.exec('hg clone ${clone_url} ${clone_dir} --branch ${branch} --quiet') or {
+    hg_clone := os.execute('hg clone ${clone_url} ${clone_dir} --branch ${branch} --quiet')
+    if hg_clone.exit_code != 0 {
         eprintln('Mercurial clone error')
         return InstalledPackage{}
     }
@@ -159,13 +161,13 @@ fn (fm FetchMethod) hg_clone() InstalledPackage {
 }
 
 fn (fm FetchMethod) hg_fetch() string {
-    cmd := os.exec('hg pull -R ${fm.dir}') or { return '' }
+    cmd := os.execute('hg pull -R ${fm.dir}')
 
     return cmd.output
 }
 
 fn (fm FetchMethod) hg_pull() string {
-    cmd := os.exec('hg pull -u -R ${fm.dir}') or { return '' }
+    cmd := os.execute('hg pull -u -R ${fm.dir}')
 
     return cmd.output
 }
@@ -175,7 +177,7 @@ fn (fm FetchMethod) hg_latest_commit() string {
     dir_name  := if pkg_name.starts_with('v-') { pkg_name.all_after('v-') } else { pkg_name }
     clone_dir := '${fm.dir}/${dir_name}'
 
-    cmd := os.exec('hg log --template "{node}" ${clone_dir}') or { return '' }
+    cmd := os.execute('hg log --template "{node}" ${clone_dir}')
 
     return cmd.output
 }
@@ -193,7 +195,9 @@ fn (fm FetchMethod) svn_checkout() InstalledPackage {
         delete_package_contents(clone_dir)
     }
 
-    svn_clone := os.exec('svn checkout ${clone_url} ${clone_dir} --revision ${branch} --depth 1 --quiet') or {
+    svn_clone := os.execute('svn checkout ${clone_url} ${clone_dir} --revision ${branch} --depth 1 --quiet')
+
+    if svn_clone.exit_code != 0 {
         eprintln('Mercurial clone error')
         return InstalledPackage{}
     }
@@ -216,7 +220,7 @@ fn (fm FetchMethod) svn_fetch() string {
 }
 
 fn (fm FetchMethod) svn_pull() string {
-    cmd := os.exec('svn update ${fm.dir}') or { return '' }
+    cmd := os.execute('svn update ${fm.dir}')
     return cmd.output
 }
 
