@@ -18,41 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-module api
+module registries
 
-import os
+import api.common
+import net.http
+import net.urllib
+import json
 
-fn delete_package_contents(path string) ? {
-	os.walk(path, os.rm)
-
-	new_folder_contents := os.ls(path) ?
-	if new_folder_contents.len == 0 {
-		os.rmdir(path) ?
-	}
-
-	return 
+pub struct VpkgRegistry {
+	base_url       string = 'https://vpkg-project.github.io/registry/registry.json'
+	index_endpoint string = '/registry.json'
 }
 
-const illegal_chars = [byte(`-`)]
+struct RegistryRepo {
+	packages []common.Package
+}
 
-fn sanitize_package_name(name string) string {
-	mut name_array := name.bytes()
-	for i, chr in name_array {
-		if chr in illegal_chars {
-			name_array[i] = `_`
+fn (reg &VpkgRegistry) index() ?[]common.Package {
+	mut url := urllib.parse(reg.base_url) ?
+	resp := http.get(url.str()) ?
+	if resp.status_code != 200 {
+		return error_with_code(resp.text, resp.status_code)
+	}
+
+	repo := json.decode(RegistryRepo, resp.text) ?
+	return repo.packages
+}
+
+fn (reg &VpkgRegistry) get(package_name string) ?common.Package {
+	packages := reg.index() ?
+
+	for pkg in packages {
+		if pkg.name == package_name {
+			return pkg
 		}
 	}
-	return name_array.bytestr()
-}
 
-pub fn (vpkg &Vpkg) create_modules_dir() ?string {
-	if !os.exists(vpkg.dir) {
-		os.mkdir(vpkg.dir) ?
-	}
-
-	return vpkg.dir
-}
-
-fn to_fs_path(name string) string {
-	return name.replace('.', os.path_separator)
+	return error_with_code('package `$package_name` not found', 404)
 }

@@ -20,39 +20,45 @@
 
 module api
 
+import api.registries
+import api.providers
+import v.vmod
 import os
 
-fn delete_package_contents(path string) ? {
-	os.walk(path, os.rm)
+pub const meta = vmod.decode(@VMOD_FILE) or { vmod.Manifest{} }
 
-	new_folder_contents := os.ls(path) ?
-	if new_folder_contents.len == 0 {
-		os.rmdir(path) ?
-	}
-
-	return 
+fn default_providers() []Provider {
+	return [
+		&providers.GitProvider{},
+		&providers.MercurialProvider{},
+	]
 }
 
-const illegal_chars = [byte(`-`)]
-
-fn sanitize_package_name(name string) string {
-	mut name_array := name.bytes()
-	for i, chr in name_array {
-		if chr in illegal_chars {
-			name_array[i] = `_`
-		}
-	}
-	return name_array.bytestr()
+fn default_registries() []Registry {
+	return [
+		&registries.VpkgRegistry{},
+		&registries.Vpm{},
+	]
 }
 
-pub fn (vpkg &Vpkg) create_modules_dir() ?string {
-	if !os.exists(vpkg.dir) {
-		os.mkdir(vpkg.dir) ?
-	}
-
-	return vpkg.dir
+pub struct Vpkg {
+mut:
+	dir        string = os.getwd()
+	registries []Registry = default_registries()
+	providers  []Provider = default_providers()
+pub mut:
+	manifest   vmod.Manifest
 }
 
-fn to_fs_path(name string) string {
-	return name.replace('.', os.path_separator)
+pub fn new(dir string) Vpkg {
+	real_path := os.real_path(dir)
+	if !os.is_dir(real_path) {
+		panic('vpkg: provided path is not a directory')
+	}
+
+	manifest, _ := load_manifest(real_path) or { panic(err) }
+	return Vpkg{ 
+		dir: real_path
+		manifest: manifest
+	}
 }

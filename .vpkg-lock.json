@@ -1,12 +1,8 @@
 {
-   "version": "0.7.1",
-   "packages": [
-      {
-         "name": "nedpals.args",
-         "version": "0.4.3",
-         "url": "",
-         "method": "",
-         "latest_commit": "586dd6aca9237c7b2d7043ad34979985b47f87b6"
-      }
-   ]
+	"version":	"0.8.0",
+	"packages":	[{
+			"name":	"nedpals.vargs",
+			"url":	"https://github.com/nedpals/vargs",
+			"version":	"9f3baf9ede342cd2401fc2fad8f2158c96bfc675"
+		}]
 }

@@ -20,39 +20,35 @@
 
 module api
 
-import os
+import net.urllib
 
-fn delete_package_contents(path string) ? {
-	os.walk(path, os.rm)
-
-	new_folder_contents := os.ls(path) ?
-	if new_folder_contents.len == 0 {
-		os.rmdir(path) ?
-	}
-
-	return 
+pub interface Provider {
+	domains []string
+	protocols []string
+mut:
+	output_dir string
+	fetch(url &urllib.URL, folder_name string) ?string
+	// get_version returns the version of the package
+	get_version(url &urllib.URL) string
+	// update updates the package
+	update(url &urllib.URL) ?
+	// remove removes the package
+	remove(url &urllib.URL) ?
 }
 
-const illegal_chars = [byte(`-`)]
+pub fn (mut pr Provider) set_output_path(output_dir string) {
+	pr.output_dir = output_dir
+}
 
-fn sanitize_package_name(name string) string {
-	mut name_array := name.bytes()
-	for i, chr in name_array {
-		if chr in illegal_chars {
-			name_array[i] = `_`
+pub fn (prs []Provider) find_by_url(url &urllib.URL) ?Provider {
+	host := url.host
+	scheme := url.scheme
+
+	for _, provider in prs {
+		if host in provider.domains || scheme in provider.protocols {
+			return provider
 		}
 	}
-	return name_array.bytestr()
-}
 
-pub fn (vpkg &Vpkg) create_modules_dir() ?string {
-	if !os.exists(vpkg.dir) {
-		os.mkdir(vpkg.dir) ?
-	}
-
-	return vpkg.dir
-}
-
-fn to_fs_path(name string) string {
-	return name.replace('.', os.path_separator)
+	return error('no provider matches the `$scheme` protocol and/or the `$host` domain.')
 }

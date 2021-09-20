@@ -1,6 +1,3 @@
-// vpkg 0.7.1
-// https://github.com/vpkg-project/vpkg
-//
 // Copyright (c) 2020 vpkg developers
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,118 +22,80 @@ module api
 
 import os
 import json
-import filepath
 
 struct Lockfile {
 mut:
-    version string
-    packages []InstalledPackage
+	version  string = meta.version
+	dir string [skip]
+	packages []Package
 }
 
 fn get_lockfile_path(dir string) string {
-    return filepath.join(dir, '.vpkg-lock.json')
+	return os.join_path(dir, '.vpkg-lock.json')
 }
 
 fn read_lockfile(dir string) ?Lockfile {
-    lockfile_path := get_lockfile_path(dir)
+	lockfile_path := get_lockfile_path(dir)
+	if !os.exists(lockfile_path) {
+		create_lockfile(dir) ?
+		return read_lockfile(dir)
+	}
 
-    if os.exists(lockfile_path) {
-        contents := os.read_file(lockfile_path) or {
-            return error('Cannot read ${dir}')
-        }
-
-        decoded := json.decode(Lockfile, contents) or {
-            return error('Unable to decode lockfile.')
-        }
-
-        return decoded
-    } else {
-        create_lockfile(dir)
-        return read_lockfile(dir)
-    }
+	contents := os.read_file(lockfile_path) or { return error('Cannot read $dir') }
+	mut decoded := json.decode(Lockfile, contents) or { return error('Unable to decode lockfile.') }
+	decoded.dir = dir
+	return decoded
 }
 
-fn (lock Lockfile) find_package(name string) int {
-    for idx, package in lock.packages {
-        if package.name == name {
-            return idx
-        }
-    }
-
-    return -1
+fn create_lockfile(dir string) ?Lockfile {
+	mut lockfile := os.create(get_lockfile_path(dir)) ?
+	lockfile_json := json.encode_pretty(Lockfile{})
+	lockfile.write_string(lockfile_json) ?
+	defer {	lockfile.close() }
+	contents := read_lockfile(dir) ?
+	return contents
 }
 
-fn (lock mut Lockfile) regenerate(packages []InstalledPackage, remove bool, dir string) {    
-    if lock.version != Version {
-        lock.version = Version
-    }
- 
-    for package in packages {
-        package_idx := lock.find_package(package.name)
-
-        if package_idx != -1 {
-            if remove {
-                lock.packages.delete(package_idx)
-            } else {
-                curr_lock_pkg := lock.packages[package_idx]
-
-                lock.packages[package_idx] = InstalledPackage{
-                    name         : package.name
-                    path         : package.path
-                    version      : package.version
-                    url          : if package.url == '' || package.url == curr_lock_pkg.url { curr_lock_pkg.url } else { package.url }
-                    method       : if package.method == '' || package.method == curr_lock_pkg.method { curr_lock_pkg.method } else { package.method }
-                    latest_commit: package.latest_commit
-                }
-            }
-        } else {
-            if !remove {
-                lock.packages << InstalledPackage{
-                    name         : package.name
-                    path         : package.path
-                    version      : package.version
-                    url          : package.url
-                    method       : package.method
-                    latest_commit: package.latest_commit
-                }
-            }
-        }
-    }
-
-    // stringify contents
-    mut contents := ['{', '   "version": "${lock.version}",', '   "packages": [']
-
-    for i, pkg in lock.packages {
-        contents << '      {'
-        contents << '         "name": "${pkg.name}",'
-        contents << '         "version": "${pkg.version}",'
-        contents << '         "url": "${pkg.url}",'
-        contents << '         "method": "${pkg.method}",'
-        contents << '         "latest_commit": "${pkg.latest_commit}"'
-
-        if i != lock.packages.len-1 {
-            contents << '      },'
-        } else {
-            contents << '      }'
-        }
-    }
-
-    contents << '   ]'
-    contents << '}'
-
-    os.write_file(get_lockfile_path(dir), contents.join('\n'))
+fn (lck &Lockfile) path() string {
+	return get_lockfile_path(lck.dir)
 }
 
-fn create_lockfile(dir string) Lockfile {
-    lockfile_json_arr := ['{', '   "version": "${Version}",', '   "packages": []', '}']
-    mut lockfile := os.create(get_lockfile_path(dir)) or { return Lockfile{Version, []InstalledPackage} }
-    lockfile_json := lockfile_json_arr.join('\n')
-    lockfile.write(lockfile_json)
-    defer { lockfile.close() }
+fn (lck &Lockfile) find_package(name string) int {
+	for idx, package in lck.packages {
+		if package.name == name {
+			return idx
+		}
+	}
+	return -1
+}
 
-    contents := read_lockfile(dir) or {
-        return Lockfile{Version, []InstalledPackage}
-    }
+fn (mut lck Lockfile) remove_package(name string) ? {
+	pkg_idx := lck.find_package(name)
+	if pkg_idx == -1 {
+		return error('package `$name` not found in the lockfile')
+	}
 
-    return contents
+	lck.packages.delete(pkg_idx)
+}
+
+fn (mut lck Lockfile) upsert_package(package Package) ? {
+	mut pkg_idx := lck.find_package(package.name)
+	if pkg_idx != -1 {
+		// delete the existing package
+		lck.packages.delete(pkg_idx)
+		lck.packages.insert(pkg_idx, package)
+	} else {
+		lck.packages << package
+	}
+}
+
+fn (mut lck Lockfile) close() {
+	lck.version = meta.version
+
+	// stringify contents
+	contents := json.encode_pretty(lck)
+	os.write_file(lck.path(), contents) or {
+		// TODO:
+		panic(err)
+	}
 }

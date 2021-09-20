@@ -18,41 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-module api
+module registries
 
-import os
+import api.common
+import json
+import net.http
 
-fn delete_package_contents(path string) ? {
-	os.walk(path, os.rm)
-
-	new_folder_contents := os.ls(path) ?
-	if new_folder_contents.len == 0 {
-		os.rmdir(path) ?
-	}
-
-	return 
+pub struct Vpm {
+	base_url   string = 'https://vpm.vlang.io'
+	jsmod_path string = '/jsmod'
 }
 
-const illegal_chars = [byte(`-`)]
-
-fn sanitize_package_name(name string) string {
-	mut name_array := name.bytes()
-	for i, chr in name_array {
-		if chr in illegal_chars {
-			name_array[i] = `_`
-		}
-	}
-	return name_array.bytestr()
+struct VpmPackage {
+	id           int
+	name         string
+	url          string
+	nr_downloads int
 }
 
-pub fn (vpkg &Vpkg) create_modules_dir() ?string {
-	if !os.exists(vpkg.dir) {
-		os.mkdir(vpkg.dir) ?
+pub fn (vpm &Vpm) get(package_name string) ?common.Package {
+	resp := http.get('$vpm.base_url$vpm.jsmod_path/$package_name') ?
+	if resp.status_code != 200 {
+		return error_with_code(resp.text, resp.status_code)
 	}
 
-	return vpkg.dir
+	repo := json.decode(VpmPackage, resp.text) ?
+
+	return common.Package{
+		name: repo.name
+		url: repo.url
+		method: 'git'
+	}
 }
 
-fn to_fs_path(name string) string {
-	return name.replace('.', os.path_separator)
+pub fn (vpm &Vpm) index() ?[]common.Package {
+	// return nothing for now
+	return []common.Package{}
 }

@@ -18,41 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-module api
+module common
 
-import os
-
-fn delete_package_contents(path string) ? {
-	os.walk(path, os.rm)
-
-	new_folder_contents := os.ls(path) ?
-	if new_folder_contents.len == 0 {
-		os.rmdir(path) ?
-	}
-
-	return 
-}
-
-const illegal_chars = [byte(`-`)]
-
-fn sanitize_package_name(name string) string {
-	mut name_array := name.bytes()
-	for i, chr in name_array {
-		if chr in illegal_chars {
-			name_array[i] = `_`
-		}
-	}
-	return name_array.bytestr()
-}
-
-pub fn (vpkg &Vpkg) create_modules_dir() ?string {
-	if !os.exists(vpkg.dir) {
-		os.mkdir(vpkg.dir) ?
-	}
-
-	return vpkg.dir
-}
-
-fn to_fs_path(name string) string {
-	return name.replace('.', os.path_separator)
+pub struct Package {
+pub:
+	name   string
+	url    string
+	method string
 }
